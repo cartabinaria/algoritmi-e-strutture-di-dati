@@ -1,0 +1,199 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{enumerate}
+
+\title{\textbf{Strutture dati elementari}}
+\author{Luca Tagliavini}
+\date{March 8-10, 2021}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\pagebreak
+
+\section{Tipi di dati}
+
+\begin{itemize}
+  \item \textbf{Tipo di dato primitivo}: Tipi di dato forniti direttamente dal
+    linguaggio e con una diretta rappresentazione a livello macchina con operazioni
+    native offerte direttamente dal calcolatore. Esempi possono essere \emph{int, float, double}.
+  \item \textbf{Tipo di dato astratto}: Tipo di dato composto e astratto, che combina
+    al suo interno vari dati astratti o primitivi e offre un insieme di operazioni da
+    svolgere su questi valori. (\emph{astratto rispetto alla sua rappresentazione})
+    \begin{itemize}
+      \item Specifica: il manuale d'uso, l'interfaccia visibile a chi utilizza
+        il nostro codice dall'esterno. Nasconde i dettagli implementativi e
+        consente al progettista di esporre solo le operazioni che ritiene giusto.
+      \item Implementazione: il codice vero e proprio con cui viene realizzata la
+        struttura dati. Non e' visibile allo sviluppatore che utilizza la libreria
+        e due diverse implementazioni possono avere una grande disparita' di performance.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Strutture dati in generale}
+
+I dati sono organizzati in memoria tramite \emph{strutture dati} in modo da oragnizzare
+i dati e offrire una serie di operazioni per manipolare la struttura. \\
+Esistono diversi metodi di definire strutture dati e le loro interfacce pubbliche, come
+ad esempio le interfacce in Java o i template in C++.
+
+\subsubsection{Esempio: Dizionario}
+
+\begin{lstlisting}
+public interface Dizionario {
+  public void insert(Comparable key, Object value);
+  public void delete(Comparable key);
+  public Object search(Comparable key);
+}
+\end{lstlisting}
+
+Decidiamo per esempio di inserire gli elementi come chiavi $(k, v)$ in una array dinamico \textbf{ordinato}.
+I nostri metodi faranno dunque le seguenti operazioni:
+\begin{itemize}
+  \item \textbf{search}: ricerca binaria sull'array ($O(\log_2 n)$)
+  \item \textbf{insert}: inserimento ordinato, quindi scorrendo l'array e
+    torvando il punto giusto dove inserire e spostare tutti gli elementi
+    successivi per fare spazio per il nuovo elemento ($O(n)$)
+  \item \textbf{delete}: ricerca binaria dell'elemento e rimozione spostando a
+  sinistra tutti gli elementi successivi ($O(n)$)
+\end{itemize}
+
+Decidiamo per esempio di inserire gli elementi come chiavi $(k, v)$ in una lista.
+I nostri metodi faranno dunque le seguenti operazioni:
+\begin{itemize}
+  \item \textbf{search}: ricerca sulla lista ($O(n)$)
+  \item \textbf{insert}: inserimento a testa ($O(1)$) 
+  \item \textbf{delete}: ricecca dell'elemento e cambiamento del puntatore ($O(n)$)
+\end{itemize}
+
+Come si puo' notare \emph{varie implementazioni hanno vari tradeoff}.
+
+\subsection{Tipi di strutture dati}
+
+\begin{itemize}
+  \item \emph{Lineari}: Elementi in una sequenza dove ogni elemento ha un index (array)
+  \item \emph{Non lineari}: Elementi inseriti in una sequenza senza una linearita' in memoria (liste)
+
+  \item \emph{Statiche}: Numero di elementi sempre costante nel tempo
+  \item \emph{Dinamiche}: Numero di elementi cambia nel tempo
+
+  \item \emph{Omogenee}: Dati tutti dello stesso tipo
+  \item \emph{Non Omogenee}: Dati possono essere di tipo diverso
+\end{itemize}
+
+\section{Strutture dati elementari}
+
+\subsection{Strutture concatenate (collegate)}
+
+Due tecniche per rappresentare collezioni di elementi: \\
+\textbf{strutture collegate (liste)} oppure \textbf{vettori indicizzati}.
+Analizzeremo in particolare le strutture collegate che sono piu' interessati come implementazione:
+
+Tutte le strutture collegate (liste) hanno in comunque di essere una collezione di \textbf{record}:
+\begin{itemize}
+  \item tutti i record sono collegati tra di loro
+  \item i record sono numerabili partendo dalla testa o dalla coda
+  \item ogni record contiene un dato
+\end{itemize}
+
+\subsubsection{Liste bilinkate}
+
+Per alcuni algoritmi puo' essere svantaggioso avere un riferimento solo al nodo successivo
+e si usano dunque liste bilinkate dove ogni record ha un puntatore all'elemento
+precedente e a quello successivo. Tuttavia, l'aggiunta di un puntatore occupera' una
+word in piu' in memoria per record. Si ha dunque un minimo overhead sulla memoria.
+
+\subsubsection{Liste circolari}
+
+Possiamo oltretutto estendere le liste bilinkate in modo che il nodo precedente
+della lista in testa punti all'ultimo e il nodo successivo dell'ultimo record punti
+al primo. In questo modo si ha una lista bilinkata circolare che rende molto piu'
+veloci operazioni come rimozione in coda o aggiunta in coda.
+
+Chiaramente con questo tipo di liste si puo' avere un problema di guardie per capire
+quando si e' in testa o in coda nella lista. (basterebbe controllare quando si analizza
+il nodo testa per la seconda volta, al quale punto abbiamo dunque iterato su tutta la lista)
+
+\subsubsection{Liste circolari con nodo sentinella}
+
+Si possono implementare liste circolari (non pulitisse) come sopra ma inserendo in
+testa un nodo vuoto che svolge l'unico compito di segnalare quando si e' giunti alla testa dela lista.
+
+\subsection{Stack (o pile)}
+
+Le pile sono una struttura di dati molto diffusa e puo' essere pensata come una
+lista dove si aggiunge sempre in testa e si possono rimuovere elementi solo in testa. \\
+In questo modo abbiamo un data flow LIFO (Last In, First Out).
+Alcuni metodi previsiti per una pila potrebbero essere: 
+
+\begin{itemize}
+  \item \textbf{push}: aggiunge un elemento in cima alla lista
+  \item \textbf{pop}: rimuove e restituisce l'elemento in cima alla lista
+  \item \textbf{top}: restituisce (e non rimuove) il primo elemento sulla lista
+  \item \textbf{isEmpty}: restituisce un booleano che indica se la lista e' vuota
+\end{itemize}
+
+Alcuni linguaggi come Java Bytecode o Hack VM funzionano con una interfaccia a pile.
+
+Ci sono due principali tecniche di implementazione:
+\begin{itemize}
+  \item \textbf{liste concatenate}: una lista come descritta sopra dove si
+    accede solo all'elemento in testa per i push/pop. \\
+    Pro: grandezza infinita \\
+    Con: piu' dispendiosa come memoria
+  \item \textbf{array}: utilizziamo un array statico di dimensione fissa tenendo
+    traccia dell'index dell'ultimo elemento aggiungo (cima della pila). \\
+    Pro: meno dispendioso a livello di memoria \\
+    Con: grandezza fissa limitata
+\end{itemize}
+
+\subsection{Coda (o queue)}
+
+La struttura dati coda, a differenza della pila, segue una politica FIFO (First In, First Out). \\
+Le operazioni standard sono:
+\begin{itemize}
+  \item \textbf{enqueue}: aggiunge un elemento in coda
+  \item \textbf{dequeue}: rimuove il primo elemento inserito nella coda
+  \item \textbf{first}: restituisce il primo elemento della coda
+  \item \textbf{isEmpty}: restituisce un booleano che indica se la lista e' vuota
+\end{itemize}
+
+Possibili implementazioni sono:
+\begin{itemize}
+  \item \textbf{liste}: liste normali o bilinkate, che hanno una performance migliore,
+    ma sono decisamente piu' complicate dal punto di vista implementativo. \\
+    Serve tenere traccia della $head$ e $tail$ rispettivamente per l'estrazione e l'inserimento.
+  \item \textbf{array circolari}: dimensione limitata, hoverhead minore.
+\end{itemize}
+
+\section{Analisi ammortizzata}
+
+L'idea e' che se abbiamo una operazione che nel caso peggiore richiede $O(n)$ ma
+nel casi normali richiede un $O$ minore, possiamo fare un calcolo ammortizzato,
+che tiene conto del tempo risparmiato nelle chiamate meno costose e ci da un risultato
+piu' realistico e piu' basso rispetto a quello del caso pessimo.
+
+La tecnica piu' facile e che vederemo e' detta \emph{tecnica dei crediti}. \\
+Partiamo dalla definizione di costo artificiale
+\begin{align*}
+  T^i_{am}(n) = T^i_{ef}(n) + deposito^i(n) - prelievo^i(n)
+\end{align*}
+Dove $T^i_{am}$ e' il costo ammortizzato e $T^i_{ef}$ e' il costo effettivo. \\
+Dimostriamo che:
+\begin{align*}
+  \sum^k_{i=1} T^i_{am}(n) \geq T(n, k) \\
+\end{align*}
+Sviluppiamo il primo membro per notare che
+\begin{align*}
+  \sum^k_{i=1} (T^i_{ef}(n) + deposito^i(n) - prelievo^i(n)) \\
+  \sum^k_{i=1} T^i_{ef}(n) + \underline{\sum^k_{i=1} deposito^i(n) - \sum^k_{i=1} prelievo^i(n)}
+\end{align*}
+la differenza sottolineata e' sempre $\geq 0$ dunque si ha che
+\begin{align*}
+  \sum^k_{i=1} T^i_{am}(n) \geq \sum^k_{i=1} T^i_{ef}(n) = T(n, k)
+\end{align*}
+
+\end{document}

@@ -1,0 +1,61 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{enumerate}
+
+\title{\textbf{Java quickstart}}
+\author{Luca Tagliavini}
+\date{March 2-4, 2021}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\pagebreak
+
+\subsection{Hello World}
+
+\begin{lstlisting}
+public class HelloWorld {
+  public static void main(String[] args) {
+    System.out.println("Hello World!");
+  }
+}
+\end{lstlisting}
+
+\subsection{Rettangolo}
+
+\begin{lstlisting}
+public class Rettangolo {
+  private int w, h;
+
+  public Rettangolo(int width, int height) {
+    w = width;
+    h = height;
+  }
+
+  public int getPermieter() { return (this.w+this.h)*2; }
+  public int getArea() { return this.w*this.h; }
+}
+
+public class
+\end{lstlisting}
+
+\begin{lstlisting}
+public class Rettangolo {
+  private int area, permietro;
+
+  public Rettangolo(int width, int height) {
+    this.area = width*height;
+    this.permietro = (width+height)*2;
+  }
+
+  public int getPerimetro() { return perimetro; }
+  public int getArea() { return area; }
+}
+
+public class
+\end{lstlisting}
+
+\end{document}
