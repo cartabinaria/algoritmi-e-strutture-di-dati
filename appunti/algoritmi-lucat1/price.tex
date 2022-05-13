@@ -1,0 +1,116 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{enumerate}
+
+\title{\textbf{Costi di esecuzione}}
+\author{Luca Tagliavini}
+\date{February 25 - March 1, 2021}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\pagebreak
+
+\subsection{Def: Consto di esecuzione}
+
+Un algoritmo $\mathcal{A}$ ha \emph{consto di esecuzione} $O(f(n))$ su instanze di ingresos
+di dimensione $n$ rispetto a una certa \emph{risorsa di calcolo} se la quantita'
+$r(n)$ di risorsa sufficiente per eseguire $\mathcal{A}$ su una qualunque istanza di
+dimensione $n$ verificata dalla relazione $r(n) = O(f(n))$.
+
+\begin{quote}
+  Per noi \emph{risorsa di calcolo} significa \textbf{tempo di esecuzione} o \textbf{occupazione di memoria}.
+\end{quote}
+
+\subsection{Def: Complessita'}
+
+Un problema $\mathcal{P}$ ha una \emph{compessita'} $O(f(n))$ rispetto a una data
+risorsa di calcolo se esiste un algoritmo che risolve $\mathcal{P}$ il cui costo di
+esecuzione rispetto a quella risorsa e' $O(f(n))$.
+
+\subsection{Selezione del caso peggiore}
+
+Prendendo ad esmepio un codice formato da operazioni \emph{non elementari}, come if
+condizionali o cicli for/while, dobbiamo sempre metterci nel caso di considerare l'input
+peggiore. Ad esempio in quest codice:
+
+\begin{lstlisting}
+algoritmo k() {
+  if cond then
+    caso_true
+  else
+    caso_false
+}
+\end{lstlisting}
+
+Avremo:
+
+\begin{itemize}
+  \item cond = $O(f(n))$
+  \item caso\_true = $O(g(n))$
+  \item caso\_false = $O(h(n))$
+\end{itemize}
+
+E sceglieremo dunque come costo computazionale dell'algoritmo $k$:
+\begin{align*}
+O(\max{\{f(n), g(n), h(n)\}})
+\end{align*}
+
+\subsection{Analisi per casi}
+
+Sia $\mathcal{I}_n$ l'insieme di tutte le possibili istanze di input di lunghezza $n$. Sia
+$T(I)$ il tempo di esecuzione dell'agoritmo sull'istanza $I \in \mathcal{I}_n$
+
+\begin{itemize}
+  \item \textbf{worst case}: $T_{worst}(n) = \max_{I \in \mathcal{I}_n}{T(I)}$
+  \item \textbf{best case}: $T_{best}(n) = \min_{I \in \mathcal{I}_n}{T(I)}$
+  \item \textbf{average case}: $T_{avg}(n) = \sum_{I \in \mathcal{I}_n}{T(I)P(I)}$ \\
+    dove $P(I)$ e' un peso in percentuale che varia in base alla probabilita'
+    che un determinato input venga dato in pasto all'agoritmo.
+\end{itemize}
+
+\subsection{Analisi algoritmi ricorsivi (Teorema dell'esperto)}
+
+\begin{align*}
+  T(n) = \begin{cases}
+    c_1 &\text{se } n = 0 \\
+    a \cdot T(n/b) + c_2 \cdot n^{\beta} &\text{se } n = 0, c_2 > 0 \\
+  \end{cases}
+\end{align*}
+
+Siano
+\begin{itemize}
+  \item $c_1$ il \emph{costo del caso base} e $c_2$ il costo del caso ricorsivo
+  \item $a$ il \emph{numero di chiamate ricorsive}
+  \item $b$ il \emph{numero di partizioni dell'input} \\
+    ovvero, grandezza dei dati passati alle sottochiamate ricorsive
+  \item $\alpha = \frac{\log_2 a }{\log_2 b }$
+  \item $\beta$ e' l'esponente della complessita' aggiuntiva per ogni
+    sottochiamata ricorisva. $\beta = 0$ se la complessita' e' costante.
+\end{itemize}
+
+A questo punto confronto i valori di $\alpha$ e $\beta$ per vedere il caso in cui sono:
+
+\begin{enumerate}
+  \item $T(n) = \Theta(n^{\alpha})$ se $\alpha > \beta$
+  \item $T(n) = \Theta(n^{\alpha} \log_2 n)$ se $\alpha = \beta$
+  \item $T(n) = \Theta(n^{\beta})$ se $\alpha < \beta$
+\end{enumerate}
+
+\textbf{ATTENZIONE}: il teorema non e' applicabile ad algoritmi ricorisvi che
+non effettuano \emph{partizioni bilanciate} (ossia quando avendo due o piu' sottochiamate
+ricorsive effettuano chiamate con $n$ della stessa grandezza). Ad esempio fibonacci
+che chiama $fib(n-1)$ e $fib(n-2)$ \emph{non effettua partizioni bilanciate}.
+
+\subsection{Esempio di algoritmo ricorsivo}
+
+Analizziamo l'algoritmo di ricerca binaria tramite il \emph{master theorem}: \\ \\
+Abbiamo $T(n) = T(n/2) + O(1)$. Da cui $a = 1, b = 2$. \\
+Vogliamo che $n^\beta$ sia costante, dunque $\beta = 0$. \\
+Dunque $a = \frac{\log_2 1}{\log_2 2} = 0$. Siamo nel caso $\alpha = \beta$: \\
+Ne segue $T(n) = \Theta(n^0 \cdot \log_2 n) = \Theta(n \log_2 n)$.
+
+\end{document}

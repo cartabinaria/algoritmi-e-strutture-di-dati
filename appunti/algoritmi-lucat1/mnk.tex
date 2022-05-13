@@ -1,0 +1,60 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{enumerate}
+
+\title{\textbf{(M, N, K)-game}}
+\author{Luca Tagliavini}
+\date{March 15-.., 2021}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\pagebreak
+
+\subsection{Informazioni generali}
+
+\begin{itemize}
+  \item Si consegna una sola volta. Se necessario saranno richieste modifiche.
+  \item Il voto rimane valido anche per gli anni accademici successivi
+  \item \textbf{deadline}: Febbraio 2022
+  \item il progetto incide $1/3$ sul foto finale
+\end{itemize}
+
+\subsection{Steps}
+
+\begin{itemize}
+  \item \textbf{sviluppo}: Java. Viene fornita l'interfaccia da implementare
+    e software utile per testare \\
+    Codici sorgenti zippati, relazione in PDF. Basta che solo una persona
+    consegnia i dati. Appelli su AlmaEsami+Teams. La discussione e' subito
+    successiva alla consegna(i.e. una settimana).
+  \item \textbf{relazione}: Le decisioni prese durante lo sviluppo
+    andranno commentate in una breve relazione.
+  \item \textbf{discussione orale}: e' circoscritto al progetto.
+\end{itemize}
+
+\subsection{Game Tree}
+
+Possiamo rappresentare tutte le possibili partite giocabili di un qualunque gioco
+tramite una struttura ad albero. Ogni nodo del nosto albero diventa una possibile
+"mappa", (scacchiera per gli scacchi, matrice per l'mnk) del gioco. \\
+La partita puo' terminare in \emph{vittoria, sconfitta o patta}.
+
+Il problema con questo approccio e' che l'albero generato e' talmente tanto ampio
+che non diventa visitabile in un tempo sensato (i.e. visitare un simile albero per
+il gioco degli scacchi richiederebbe piu' tempo della vita attuale dell'universo).
+
+\subsection{Algoritmo minimax}
+
+\begin{itemize}
+  \item assumiamo di poter generare tutto l'albero delle possibili combinazioni
+  \item aggiungiamo una targetta ad ogni foglia indicando se la foglia corrisponde
+    a una vittoria, a una sconfitta o a una patta.
+  \item portiamo poi i label dalle foglie alle radici, quindi per i nodi padri
+    delle foglie terremo traccia di quante foglie sono vittoriose, quante patte e quante sconfitte.
+\end{itemize}
+
+\end{document}

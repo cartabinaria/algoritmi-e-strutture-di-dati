@@ -1,0 +1,1138 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumerate}
+\usepackage[ruled]{algorithm2e}
+\usepackage{float}
+\usepackage[hidelinks]{hyperref}
+
+\DontPrintSemicolon
+\renewcommand{\thealgocf}{} % don't print algorithm numbers
+\hfuzz=100.0pt  % ignore paragraph lengths warnings
+
+\title{\textbf{Grafi}}
+\author{Luca Tagliavini}
+\date{April 26-March 17, 2021}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\pagebreak
+
+\section{Introduzione}
+
+Un grafo e' un insieme di punti detti \emph{nodi} collegati da ponti detti
+\emph{archi}. I grafi possono essere sia \textbf{ciclici} che non, ma quelli
+non ciclici possono essere interpretati come alberi senza radice.
+
+\emph{Gli archi possono essere pesati} in modo che i collegamenti tra alcuni nodi
+possano avere un valore ad essi associato. \\
+Gli archi possono oltretutto essere \emph{orientati}, indicando che il
+collegamento da essi rappresentato e' solo in una data direzione (o maggiormente
+rilevante in una data direzione).
+
+\subsection{Problemi sui grafi}
+
+\begin{enumerate}
+  \item Visite
+    \begin{itemize}
+      \item in ampiezza (BFS), usata per identificare il cammino di lunghezza
+        minima da una singola sorgente
+      \item profondita' (DFS)
+    \end{itemize}
+  \item Alberi di copertura minima
+  \item Cammini minimi da una singola sorgente o tra tutte le coppie di vertici
+\end{enumerate}
+
+\subsubsection{Orientamento}
+
+I grafi possono essere \textbf{orientati} o \textbf{non orientati}.
+
+\begin{itemize}
+  \item Un grafo \emph{orientato} e' composto come una coppia $(V, E)$ dove $V$
+    e' l'insieme finito di tutti i vertici, ed $E$ e' l'insieme di archi
+    \textbf{orientati} che collega gli elementi contenuti in $V$. Percio'
+    se si vuole avere un collegamento a doppio senso tra due nodi $A$ e $B$
+    bisogna inserie le coppie $(A, B)$ e $(B, A)$ dentro a $E$.
+  \item Un grafo \emph{non orientato} e' rappresentato come una coppia $(V, E)$
+    in modo analogo a quello dei grafi orientati, ma per gli archi non venogno
+    usate coppie ma bensi' insiemi i quali, a differenza delle coppie, ignorano
+    l'ordine nel quale gli elementi appaiono in essi.
+\end{itemize}
+
+\subsubsection{Incidenza e Adiacenza}
+
+Un \emph{arco} si dice \textbf{incidente} su $v$ se collega un qualche nodo ad esso. \\
+Un \emph{arco} si dice \textbf{incidente} da $v$ se collega $v$ ad un qualche altro nodo.
+
+Un \emph{vertice} $w$ si dice \textbf{adiacente} a $v$ sse $(v, w) \in E$,
+ovvero esiste un collegamento diretto tra $v$ e $w$.
+
+\subsubsection{Operazioni sui grafi}
+
+\begin{itemize}
+  \item $n\_vertices() \rightarrow int$: ritorna il numero di vertici $\in V$.
+  \item $n\_edges() \rightarrow int$: ritorna il numero di vertici $\in V$.
+  \item $grade(vertex\_t v) \rightarrow int$: restituisce il numero di archi
+    entranti o uscenti con esso, ossia tutti gli archi incidenti ad esso. Piu'
+    avanti potremo anche definire \emph{grade} come $in\_degree() + out\_degree()$
+    ossia la somma dei gradi in entrata e in uscita al nodo.
+  \item $incident\_edges(vertex\_t v) \rightarrow edge\_t[]$: ritorna tutti
+    gli archi incidenti al nodo
+  \item $extremes(edge\_t a) \rightarrow vertex\_t[2]$: ritorna i nodi che
+    l'arco in input collega
+  \item $opposite(edge\_t a, vertex\_t v) \rightarrow vertex\_t$: restituisce
+    l'altro nodo al quale e' collegato $v$ tramite l'argo $a$
+  \item $adjacent(vertex\_t a, vertex\_t b) \rightarrow bool$: restituisce
+    true sse i due vertici hanno un arco di collegamento diretto.
+  \item $add\_vertex(vertex\_t v) \rightarrow void$: aggiunge un veritce
+    alla lista di vertici $V$.
+  \item $add\_edge(arx\_t a) \rightarrow void$: aggiunge un arco alla lista
+    di archi $E$.
+  \item $del\_vertex(vertex\_t v) \rightarrow void$: rimuove un veritce
+    dalla lista di vertici $V$.
+  \item $del\_edge(arx\_t a) \rightarrow void$: rimuove un arco dalla lista
+    di archi $E$.
+\end{itemize}
+
+\subsection{Possibili implementazioni}
+
+Tratteremo solo l'implementazione degli archi, in quanto i nodi saranno mantenuti
+in ogni caso in un vettore di nodi. Useremo i seguenti valori all'interno delle slide:
+\begin{itemize}
+  \item $n = \text{numero di vertici} = |V|$
+  \item $m = \text{numero di archi} = |E|$
+\end{itemize}
+
+\begin{enumerate}
+  \item Liste di archi (grafo non orientato): usiamo una struttura dati lista
+    per memorizzare gli archi che collegano i vari nodi. Il costo in quantita'
+    di spazio e' ottimale, $O(|E|)$, ovvero $O(m)$, ma rende estremamente costose
+    alcune operazioni in quanto bisogna scorrere tutta la lista per prendere
+    l'elemento in posizione $n$.
+  \item Liste di incidenza (grafo non orientato): si possono rappresentare gli
+    archi inserendoli come informazioni aggiuntive ai singoli nodi in modo che
+    i costi delle operazioni siano quasi tutti legati al grado dei nodi (numero
+    di collegamenti del nodo). D'ora in avanti indicheremo il grado con il simbolo
+    $\delta(n) \text{ dove } n \in V$.
+  \item Matrice di adiacenza (grafo non orientato): costruiremo una matrice atta
+    a indicare quali nodi sono collegati e con chi, generano una matrice quadrata
+    simmetrica $|v| \times |v|$ descritta dalla seguente equazione:
+    \begin{align*}
+      M(u, v) = \begin{cases}
+        1 &\text{se} \{u, v\} \in E \\
+        0 &\text{altrimenti}
+      \end{cases}
+    \end{align*}
+    Sfortunatamente non solo il costo di memoria sara' dell'ordine di $O(n^2)$,
+    ma anche molte operazioni avranno tale costo a causa della possibile necessita'
+    di scandagliare tutta la matrice o allargarla (copiando i valori vecchi in
+    quella nuova).
+  \item Lista di adiacenza (grafo non orientato): si salvano i nodi in una lista
+    come sottoliste. Ogni sottolista contiene il valore (nome del nodo) e un puntatore
+    ad altri elementi di questa struttura a lista che contengono tutti i nodi ai quali
+    il nostor $n \in N$ e' collegato. Questa tecnica, molto utilizzata, porta
+    molti metodi a un costo computazionale $O(\delta(v)) \text{ dove } v \in V$.
+    \textbf{Rifrasando, teniamo i nodi in una lista, e ogni nodo viene rappresentato
+      come una lista che contiene tutti i nodi ai quali esso e' collegato (ovvero i
+    nodi adiacenti)}.
+
+    Sara' il tipo d'implementazione usato maggiormente.
+\end{enumerate}
+
+\subsection{Grafi pesati}
+
+In alcuni grafi ogni arco ha un \emph{peso} o costo associato. Il costo associato
+ad un arco puo' essere calcolato tramite una funzione $w: E \to \mathbb{R} \cup \{\infty\}$. Quando
+tra due nodi non esiste un arco il valore $w(\cdot) = \infty$.
+
+Estendendo l'implementazione del grafo vista nel punto $3$ sara' possibile scrive
+una matrice di adiacenza per grafi non orientati \emph{pesati}:
+
+\begin{align*}
+  M(u, v) = \begin{cases}
+    w(u, v) &\text{se } \{u, v\} \in E \\
+    \infty &\text{altrimenti}
+  \end{cases}
+\end{align*}
+
+\subsection{Cammini}
+
+I \emph{cammini} sono una sequenza di archi che devo attraversare per arrivare da
+un vertice ad un altro. Matematicamente posso pensare al cammino $\langle w_0,
+w_1, \ldots, w_n\rangle$ tale che $\{w_i, w_i+1\} \in E \text{ con } 0 \leq i \leq n-1$.
+Il cammino $\langle w_0, w_1, \ldots, w_n \rangle$ contiene i vertici $w_0, w_1, \ldots, w_n$
+ma anche i vertici usati per spostarsi nel cammino $\{w_0, w_1\}, \{w_1, w_2\}, \{w_n-1, w_n\}$.
+La \emph{lunghezza del cammino} e' il numero di archi che devo visitare per
+andare da $w_0$ a $w_n$.
+
+I cammini sono detti \emph{semplici} se non hanno vertici ripetuti al loro intero
+(i.e. $A \to B \to C$). I cammini sono detti \emph{non semplici} quando al loro
+interno si hanno vertici ripetuti (i.e. $\underline{A} \to B \to \underline{A} \to C$).
+
+\subsubsection{Raggiungibilita'}
+
+Se esiste un cammino $c$ tra i vertici $v$ e $w$, si dice che \emph{$v$ e'
+raggiungibile da $w$ tramite $c$}. Il viceversa $w \to v$ vale nei grafi non
+ordinati, ma non e' garantito in quelli ordinati.
+
+\subsection{Grafi connessi}
+
+Un grafo non orientato si dice \emph{connesso} se $\forall v_1, v_2 \in V \quad
+w(v_1, v_2) \neq \infty$. In altre parole, si un grafo si dice
+connesso quando per ogni vertice esiste un cammino ad ongi altro vertice.
+
+\subsubsection{Grafo fortemente connesso}
+
+Se siamo in un grafo orientato si dice che esso e' \emph{fortemente connesso} se
+esiste un cammino da ogni vertice ad ogni altro vertice.
+
+\subsection{Conversione di grafi}
+
+Prendendo un grafo \emph{orientato} si puo' ottenere la sua versione \emph{non orientata}
+ignorando i versi e rimuovendo i cappi. 
+
+Partendo invece da un grafo \emph{non orientato} lo si puo' rendere \emph{orientato}
+trasformando ogni arco in due archi direzionali che puntano in entrambe le direzioni.
+
+\subsubsection{Grafo debolmente connesso}
+
+Un grafo \emph{ordinato} si dice debolmente connesso, se esso non e' fortemente
+connesso, e presa la sua rappresentazione come grafo \emph{non ordinato} essa
+si puo' dire \emph{connesso}.
+
+\subsection{Ciclo}
+
+Un \emph{ciclo} in un grafo orientato e' un cammino $\langle w_0, w_1, \ldots, w_n\rangle$
+di lunghezza $\geq 1$ tale che $w_0 = w_n$. Un ciclo si dice semplice se i nodi
+$w_1, \ldots, w_{n-1}$ \emph{sono distinti}.
+
+I grafi si dicono \emph{aciclici} se non contengono cicli. Una terminologia molto
+usata sara' quella del \emph{DAG}, ovvero Directed Acyclic Graph.
+
+\subsection{Grafo completo}
+
+Un \emph{grafo non orientato completo} e' un grafo che ha un arco tra ogni coppia
+di nodi possibile. Quanti archi si avranno in questo modo? $\frac{n(n-1)}{2}$
+
+\subsection{Grafi come alberi}
+
+Un \emph{albero libero} e' un grafo non ordinato connesso aciclico. Se un vertice
+viene denominato radice si ha un classico albero radicato.
+
+\section{Algoritmi sui grafi}
+
+\subsection{Visite}
+
+Dato un grafo $G = (V, E)$ e un vertice sorgente $s \in V$ si visita ogni vertice
+raggiungibile da tale nodo sorgente \emph{una sola volta}.
+
+Come per le visite sugli alberi ci sono due tecniche per la visita: BFS che visita
+prima in ampiezza, analizzando ogni nodo direttamente collegato alla sorgente e 
+allargandosi poi ricorisvamente, e DFS che visita in profondita' e visita i vertici
+in base alla loro distanza dalla sorgente.
+
+\subsubsection{Visita generica sui grafi}
+
+Possiamo usare gli algoritmi per la visita in ampiezza e profondita' sugli alberi,
+tramite una coda o una stack, ma dobbiamo curarci di segnare i vertici gia' visitati
+in quanto i grafi possono essere ciclici (o comunque per visitare i "figli" di
+un nodo si va a visitare inevitabilmente anche il padre) e il nostro algoritmo
+potrebbe visitare alcuni nodi piu' volte e andare in loop. Marcheremo percio'
+ogni nodo con tre diversi tipi di stato:
+
+\begin{enumerate}
+  \item \textbf{inesplorato} il nodo non e' ancora stato visitato
+  \item \textbf{aperto} il nodo e' uno di quelli attualmente visitati
+  \item \textbf{chiuso} il nodo e' gia' stato esplorato
+\end{enumerate}
+
+L'idea per la BFS sui grafi e' quella di creare un albero di visita $T$ radicato
+nella sorgente $s$ che contiene tutti i nodi raggiungibili da $s$ tramite gli
+archi che abbiamo poi effettivamente utilizzato per la ricerca. L'albero costituito
+da questi nodi e questi archi viene restituito dall'algoritmo.
+
+Avremo poi una stack/queue $F$ chiamata anche frontiera, che contiene tutti i
+nodi gia' visitati ma che possono ancora darci qualche vertice tramite i propri
+adiacenti.
+
+Esiste poi un algoritmo generico che ci consente di implementare sia una BFS che
+una DFS variando il tipo della frontierea $F$. Con una stack \emph{lifo} avremo una
+ricerca DFS, mentre con una queue \emph{fifo} avremo una ricerca BFS.
+
+Eccone una implementazione generica in pseudocodice:
+
+\begin{algorithm}[H]
+  \KwData{G = (V, E), V s dove s e' la radice}
+  \KwResult{T = traverse tree}
+  \Begin{
+    \ForEach{v $\in$ V}{
+      v.marked $\leftarrow$ false
+    }
+    t $\leftarrow$ s\;
+    f $\leftarrow$ \{ s \}\;
+    \While{f $\neq \emptyset$}{
+      u $\leftarrow$ f.extract()\;
+      visit(u)\;
+      \ForEach{v $\in$ adjacent(u)}{
+        \If{v.marked = false}{
+          v.marked $\leftarrow$ true\;
+          f.push(v)\;
+          u.insert(v)\;
+        } 
+      }
+    }
+    \Return{t}
+  }
+  \caption{Generale DFS/BFS su grafi}
+\end{algorithm}
+
+Globalmente in \emph{tutte le sue esecuzioni} il for each viene eseguito $k$
+volte dove $k = 2 |E| = m$ poiche' ogni arco viene traversato due volte (una padre-figlio,
+l'altra figlio-padre). Il ciclo while viene eseguito $k = |V| = n$ volte, e anche
+se essi sono nestati, abbiamo fatto il calcolo prima in modo globale, non pensandolo
+come ciclo nestato, il che ci da un costo complessivo di $O(n + m)$.
+
+\subsection{Visita in ampiezza BFS}
+
+La BFS traversa il grafo in ampiezza, visitando in successione tutti i nodi nello
+stesso "livello" del grafo, ossia tutti quelli alla stessa distanza dalla sorgente.
+Vediamo lo pseudocodice:
+
+\begin{algorithm}[H]
+  \KwData{G = (V, E), V s dove s e' la radice}
+  \KwResult{T = traverse tree}
+  \Begin{
+    \ForEach{v $\in$ V}{
+      v.marked $\leftarrow$ false
+    }
+    t $\leftarrow$ s\;
+    f $\leftarrow$ new Queue(s)\;
+    s.dist $\leftarrow$ 0\;
+    \While{f $\neq \emptyset$}{
+      u $\leftarrow$ f.dequeue()\;
+      visit(u)\;
+      \ForEach{v $\in$ adjacent(u)}{
+        \If{v.marked = false}{
+          v.marked $\leftarrow$ true\;
+          v.dist $\leftarrow$ u.dist + 1\;
+          f.enqueue(v)\;
+          u.insert(v)\;
+        } 
+      }
+    }
+    \Return{t}
+  }
+  \caption{Generale DFS/BFS su grafi}
+\end{algorithm}
+
+La BFS puo' essere sfruttata per trovare i percorsi piu' brevi tra due nodi (grazie
+al suo albero di visita), che vengono chiamati anche \emph{cammini di lunghezza minima}.
+
+\subsection{In particolare: DFS su grafi}
+
+\begin{algorithm}[H]
+  \SetKwFunction{printlcs}{dfs}
+  \Indm\printlcs{G = (V, E), s}\\
+  \Indp
+  time $\leftarrow$ time + 1\;
+  \tcc{discovery time - started exporing the node}
+  s.dt $\leftarrow$ time\;
+  \ForEach{v $\in$ adjacent(s)}{
+    \If{v.color = white}{
+      v.parent = s\;
+      \printlcs{G, v}\;
+    }
+  }
+  visit(s)\;
+  time $\leftarrow$ time + 1\;
+  \tcc{finish time - the node has been fully visited}
+  s.ft $\leftarrow$ time\;
+  s.color $\leftarrow$ black\;
+  \caption{Funzione ausiliaria a DFS per grafi}
+\end{algorithm}
+
+La funzione $dfs$ sara' poi chiamata dalla vera funzione di vista, che avra' questa forma:
+
+\begin{algorithm}[H]
+  \KwData{G = (V, E), V[] V insieme di nodi da cui far partire la visita}
+  \KwResult{T = traverse tree}
+  \Begin{
+    time $leftarrow$ 0\;
+    \ForEach{v $\in$ V}{
+      v.color $\leftarrow$ white
+      v.parent $\leftarrow$ null
+    }
+    \ForEach{u $\in$ V}{
+      \If{u.color = white}{
+        dfs(u)
+      }
+    }
+  }
+  \caption{Generale DFS/BFS su grafi}
+\end{algorithm}
+
+Come si puo' notare questo algoritmo $DFS$ esegue le sottochiamate ausiliare $dfs$
+su ogni nodo dato in input. Questo comportamento e' desidierabile nel caso in cui
+si voglia far partire la ricerca da vari nodi poiche' alcuni non sono collegati
+tra di loro e ci daranno dunque accesso a "nuove" parti dell'albero (rispetto
+agli altri). Quello che verra' generato non sara' piu' un \emph{albero di visita}
+ma bensi' un insieme di essi, denonminato \emph{foresta di visita}.
+
+Per ogni nodo manteniamo le variabili \emph{discovery time} e \emph{finish time}
+che rappresentano rispettivamente il "tempo" di scoperta e quello di fine
+dell'esplorazione di un determinato nodo. Questa proprieta' e l'algoritmo DFS ci
+consentiranno di risolvere problemi quali: determinare se un grafo orientato e'
+aciclico, trovare la mappatura topologica di un grafo, $\ldots$.
+
+\subsubsection{Teorema delle parentesi}
+
+Come in matematica e in programmazione vige l'implicita regola che ogni parentesi
+vada chiusa, possiamo identificare un simile pattern anche nelle visite DFS sui
+grafi, in particolare guardando alle variabili \emph{dt} ed \emph{ft}.
+
+Poiche' la nostra DFS e' una funzione ricorsiva e le variabili \emph{dt} e \emph{ft}
+vengono assegnate prima e dopo le chiamate ricorsive, esse rispettano la proprieta'
+delle parentesi.
+
+Per questo teorema, prendendo due vertici $u$ e $v$ dal nostor grafo visitato,
+varranno le seguenti proprieta':
+
+\begin{enumerate}
+  \item Gli intervalli $[u.dt, u.ft]$ e $[v.df, v.ft]$ sono disgiunti \\
+    i due vertici non sono legati da alcuna relazione di parentela
+  \item L'intervallo $[u.dt, u.ft]$ e' completamente contenuto in  $[v.df, v.ft]$ o viceversa \\
+    il nodo il cui intervallo e' contenuto e' figlio dell'altro
+  \item Gli intervalli $[u.dt, u.ft]$ e $[v.df, v.ft]$ sono parzialmente sovrapposti \\
+    non puo' mai avvenire in una corretta visita \emph{dfs}
+\end{enumerate}
+
+\subsubsection{Grafi orientati}
+
+Nei grafi orientati, preso un arco $(u, v)$ non presente negli alberi della foresta
+restituita da \emph{dfs} si possono distinguere tre casi in base ai valore $df$ e $ft$
+dei vertici:
+
+\begin{enumerate}
+  \item Se $v.dt < u.dt$ e $u.ft < v.ft$ l'arco $(u, v)$ e' detto all'indietro
+  \item Se $u.dt < v.dt$ e $v.ft < u.ft$ l'arco $(u, v)$ e' detto all'avanti
+  \item Se $v.ft < u.dt$ l'arco $(u, v)$ e' detto attraversamento a sinistra \\
+    NOTA: l'opposto (attraversamento a destra) non si puo' mai verificare in
+    quanto romperebbe la proprieta' di visita singola di ongi singolo vertice
+    delle ricerche sui grafi.
+\end{enumerate}
+
+\subsubsection{Identificare grafi ciclici}
+
+Per identificare un ciclo in un grafo \emph{orientato}, una volta svolta la
+\emph{dfs} basta verificare se tra gli archi rimanenti (non usati dalla dfs) si
+ha un arco all'indietro. Un simile arco ci consentirebbe di tornare ad un nodo
+precedente e di conseguenza entrare in un ciclo.
+
+\subsubsection{Ordinamento topologico}
+
+In alcune situazioni, ad esempoio una lista di job da svolgere \textbf{tra loro
+dipendenti}, si hanno delle dipendenze causali tra i vari vertici. Una struttura
+di questo tipo viene solitamente rappresentata tramite un DAG (Direct, Acyclic Graph).
+
+In un grafo di questo tipo si possono individuare ordinamenti, che vengon chiamati
+\emph{topologici} sse preso un arco $(u, v)$ allora $u$ compare prima di $v$
+nell'ordinamento. Si noti che un dag puo' avere svariati ordinamenti topologici.
+
+\noindent L'algoritmo per risolvere questo problema puo' essere implementato tramite i seguenti step:
+
+\begin{enumerate}
+  \item Si effettua una DFS sul grafo dato
+  \item La funzione \emph{visit} viene implementata in modo da aggiungere il
+    nodo attualmente visitato in testa a una lista
+  \item La lista generata in questo modo viene restituita dall'algoritmo
+\end{enumerate}
+
+\subsection{Visite su componenti connesse (grafo non orientato)}
+
+Introduciamo la nozione di componente connessa: Due vertici $u$ e $v$ appartengono
+alla stessa componente connessa se $u$ e' raggiungibile da $v$. Questa e' una
+realzione di equivalenza con le proprieta' \emph{riflessiva, simmetrica e transitiva}.
+
+E' di nostro interesse eseguire delle visite sui vertici di queste componenti connesse.
+
+\begin{quote}
+  NOTA: in un grafo non ordinato tutti i vertici connessi, essendo collegati con
+  archi in entrambe le direzioni, appartengono alla stessa componente connessa.
+\end{quote}
+
+\subsection{Componenti fortemente connesse (grafo orientato)}
+
+Ricordiamo: un grafo \emph{orientato} $G$ e' fortemente connesso se ogni coppia
+di vertici e' connessa da un cammino.
+
+Due vertici $u$ e $v$ appartengono alla stessa componente fortemente connessa
+sse esiste un cammino da $u$ a $v$ e viceversa. Anche \emph{la relazione di 
+connettivita' forte} gode delle proprieta' \emph{riflessiva, simmetrica e transitiva}.
+
+Due vertici $u$ e $v$ appartengono alla stessa componente fortemente connessa sse
+esistono i cammini $u \to v$ e $v \to u$. Per calcolare tutti i nodi raggiungili
+e dai quali si puo' tornare indietro basta fare l'intersezione tra i vertici
+discendenti $D(x)$ e i vertici antenti $A(x)$ dove $x$ e' il nodo di nostro interesse.
+Calcolare $D(x) \cap A(x)$ ci dara' dunque l'insieme di vertici fortemente connessi.
+
+Identificare l'insieme $D(x)$ e' facile, basta seguire gli archi che partono da
+$x$, mentre un'idea furba per trovare $A(x)$ e' quella di invertire le direzioni
+di tutti gli archi e vedere ancora una volta gli archi che partono da (ma prima
+puntavano a) $x$.
+
+\subsection{Minimum Spanning Tree}
+
+Problema classico: Bisogna creare un circuito stampato dove svariati componenti
+hanno svariati pin che vanno collegati tra di loro, e desideriamo trovare i
+collegamenti piu' corti tra i pin.
+
+Il problema e' risolvibile tramite un grafo \emph{non orientato e connesso}, che
+ha anche una funzione peso $w: V \times V \to \mathbb{R}$ che assegna a ogni arco
+(filo nell'esempio pratico) un peso (lunghezza del filo). Il nostro obbiettivo
+sara' poi trovare il \emph{sottografo} che connette tutti i vertici ed ha il
+minimo peso possibile.
+Possiamo indicare il grafo includendo anche la definizione della funzione peso
+in questo modo: $G = (V, E, w)$.
+
+L'output del nostro problema sara' uno \emph{spanning tree} (albero di copertura)
+$T = (V, E_T)$ tale che $V = V$ (ovvero contiene tutti i vertici iniziali),
+$E_T \subseteq E$ (ovvero i vertici sono collegati da un sottoinsieme degli
+archi iniziali), e tale che $T$ sia l'albero di copertura con \textbf{sommatoria
+dei pesi minima}, ovvero:
+\begin{align*}
+  w(T) = \sum_{(u, v) \in T} w(u, v) \text{ sia minimo tra tutti i } T \text{ esistenti}
+\end{align*}
+
+\begin{quote}
+  NOTA: il MST potrebbe non essere unico, possono esserci infatti coperture
+  equivalentemente buone come peso
+\end{quote}
+
+\subsection{Algoritmo generico (base di Kruskal e Prim)}
+
+Scriveremo un algoritmo \emph{greedy} che cerca di ingrandire in modo
+incrementale un sottografo $T$ del grafo iniziale fino a raggiungere un sottografo
+con $n-1$ archi ($n$ e' il numero di vertici) mantenendo sempre la proprieta' che
+\textbf{$T$ e' un sottoinsieme di qualche albero di copertura minimo}, ovvero
+e' composto interamente da archi \emph{sicuri}, dove \emph{essere sicuro} significa
+che un arco $(u, v) \cup T$ e' ancora un sottoinsieme di archi di un valido MST.
+
+L'algoritmo generico puo' essere espresso in questo modo:
+
+\begin{algorithm}[H]
+  \KwData{G = (V, E, w)}
+  \KwResult{MST}
+  \Begin{
+    tree $\leftarrow \emptyset$\;
+    \While{!is\_mst(tree)}{
+      vertex $\leftarrow$ find\_save\_edge()\;
+      tree $\leftarrow$ tree $\cup$ vertex\;
+    }
+    \Return{tree}\;
+  }
+  \caption{Generica costruzione di un MST}
+\end{algorithm}
+
+\subsubsection{Def: Taglio}
+
+\begin{itemize}
+  \item \emph{Un taglio} e' una terna $(S, V, -S)$ di un grafo $G = (V, E)$ tale
+    che il grafo viene diviso in due sottoinsiemi disgiunti.
+  \item Un arco $(u, v)$ \emph{attraversa un taglio} sse $u \in S \wedge v \in -S$.
+  \item Un arco \emph{rispetta un insieme di archi $T$} se nessun arco di $T$
+    attraversa il taglio.
+  \item Un arco che attraversa un taglio e' \emph{leggero} se il suo peso e'
+    minimo tra tutti i nodi che attraversano il taglio.
+\end{itemize}
+
+\subsection{Regole}
+
+\begin{enumerate}
+  \item Regola del \textbf{taglio}: scegli un taglio $T$ che \textbf{non contiene
+    archi blu}. Tra tutti gli archi del taglio seleziona una arco di peso minimo e
+    coloralo blu.
+  \item Regola del \textbf{ciclo}: scegli un ciclo $G$ che \textbf{non contiene
+    archi rossi}. Tra tutti gli archi del ciclo scegli l'arco di peso maggiore e
+    coloralo rosso.
+\end{enumerate}
+
+Soluzione \emph{greedy}: applica ad ogni step una delle due regole, purche' si
+possa applicare, fino a generare un MST.
+
+\subsection{Algoritmo di Kruskal}
+
+L'algoritmo id Kruskal parte considerando tutti gli archi, in ordine non
+decrescente per peso dato dalla funzione $w$. Per ogni arco, se esso e'
+\emph{l'arco che attraversa un taglio}, sara' sicuramente quello piu'
+\emph{leggero} poiche' l'arco di peso minimo, quindi potremo colorarlo in blu
+(regola del taglio). Se esso non attraversa un taglio, ma bensi' fa parte di un
+ciclo dove e' l'arco piu' pesante esso viene colorato di rosso (regola del ciclo).
+
+\begin{quote}
+  NOTA: dire che non riusciamo a fare un taglio o che un arco appartiene ad un ciclo
+  ed ha peso massimo sono la stessa cosa applicando questo algoritmo.
+\end{quote}
+
+Una volta colorati tutti gli archi l'MST sara' dato da tutti gli archi colorati
+di blu, o (ancora meglio) quando abbiamo colorato $n-1$ archi.
+
+\begin{algorithm}[H]
+  \KwData{G = (V, E, w)}
+  \KwResult{MST}
+  \Begin{
+    uf $\leftarrow$ new UnionFind()\;
+    tree $\leftarrow \emptyset$\;
+    \ForEach{v $\in$ V}{
+      uf.make\_set(v)
+    }
+    sort(E, w)\;
+    \ForEach{(u, v) $\in$ E}{
+      id\_u $\leftarrow$ uf.find(u)\;
+      id\_v $\leftarrow$ uf.find(v)\;
+      \If{v $\neq$ v}{
+        tree $\leftarrow$ tree $\cup$ (u, v)\;
+        uf.merge(id\_u, id\_v)\;
+      }
+    }
+    \Return{tree}\;
+  }
+  \caption{Algoritmo di Kruskal}
+\end{algorithm}
+
+\textbf{Costo}: $O(2m \log_2 n + n \log_2 n)$, poiche' $m = O(n^2)$ si ha come
+costo massimo $O(m \log_2 n)$.
+
+\subsection{Algoritmo di Prim}
+
+L'idea e' quella di partire con un singolo vertice e far crescere l'albero
+ampliando lo spanning tree connettendo gli archi di costo minore al nodo
+gia' esplorato.
+
+Ad esempio nella prima esecuzione del ciclo, avremo un solo vertice selezionato.
+In tal modo \emph{creiamo un taglio} tra il singolo nodo e il resto del grafo,
+e scegliamo l'arco che attraversa il taglio prendendo quello \emph{di costo minore}.
+
+L'arco sara' ingrandito a ogni step ma si puo' applicare comunque questa tecnica
+fino a completare il Minimum Spanning Tree.
+
+\begin{algorithm}[H]
+  \KwData{G = (V, E, w), V s = radice da cui partire}
+  \KwResult{int[]}
+  \Begin{
+    \tcc{distance of the node from the tree}
+    d $\leftarrow double[len(V)]$\;
+    \tcc{vettore dei padri, per ogni elemento indico qual'e' il padre
+    (usato per ricostruire l'albero di Prim)}
+    p $\leftarrow int[len(V)]$\;
+    b $\leftarrow bool[len(V)]$\;
+    \ForEach{v $\in$ V}{
+      d[v] = $\infty$\;
+      p[v] = -1\;
+      b[v] = false\;
+    }
+    \tcc{the first node is at 0 disance}
+    d[s] $\leftarrow$ 0\;
+    q $\leftarrow$ new ProprityQueue(s, d[s])\;
+    \While{!q.is\_empty()}{
+      u $\leftarrow$ q.get\_max()\;
+      q.delete\_max()\;
+      b[u] $\leftarrow$ true\;
+      \ForEach{v $\in$ adjacent(u) and b[v] $\neq$ true}{
+        \uIf{d[v] = $\infty$}{
+          d[v] $\leftarrow$ w(u, v)\;
+          p[v] $\leftarrow$ u\;
+          q.insert(v, d[v])\;
+        }
+        \ElseIf{w(u, v) < d[v]}{
+          d[v] $\leftarrow$ w(u, v)\;
+          p[v] $\leftarrow$ u\;
+          q.update\_key(v, d[v])\;
+        }
+      }
+    }
+    \Return{p}\;
+  }
+  \caption{Algoritmo di Prim}
+\end{algorithm}
+
+\begin{quote}
+  Il costo dell'algorimto di Prim e' da: costo del while per costo del for $O(m)$.
+  In ogni for vengono chiamate $insert$ e $update$ che hanno entrambe costo logaritmico.
+  Si ha dunque $O(m) \cdot O(\log_2 n) = O(m \log_2 n)$.
+  Notare che il while ha costo $O(n)$ poiche' visitera' tutti i vertici del grafo,
+  ma sfruttiamo questa informazione per valutare il costo del for each, che
+  complessivamente, in $n$ cicli, visitera' tutti gli archi, dandoci un costo di $O(m)$.
+
+  Anche \emph{delete\_min} ha costo logaritmico (essendo dentro al while avrebbe
+  costo $O(n \log_2 n)$) ma puo' essere ignorata rispetto al costo di $O(m\log_2n)$.
+\end{quote}
+
+\section{Cammini minimi}
+
+Dato un grafo \emph{orientato e pesato} $G=(V,E,w)$ si definisce \textbf{il costo
+di un cammino} $\pi = (v_0, v_1, \ldots, v_k)$ che collega il nodo $v_0$ con il
+nodo $v_k$:
+\begin{align*}
+  w(\pi) = \sum_{i=1}^k w(v_{i-1}, v_i)
+\end{align*}
+
+\begin{quote}
+  Dato una coppia di vertici $v_0, v_k$ vogliamo trovare il cammino tra tutti
+  quelli esistenti con costo minimo. \textbf{Si noti che non e' garantito che
+  questo cammino esista}.
+\end{quote}
+
+\noindent Ci sono tre varianti del problema della ricerca del cammino minimo:
+\begin{enumerate}
+  \item \textbf{cammino minimo tra $u$ e $v$}: trovare se esiste il cammino minimo
+    tra tutti quelli del tipo $\pi_{u,v}$ tale che il suo costo sia minimo.
+  \item \textbf{single-source shortest path}: partendo da un vertice sorgente $s$
+    trovare tutti i cammini migliori per raggiungere ogni nodo raggiungibile da $s$.
+  \item \textbf{all-pairs shortest pairs}: determinare ogni cammino ottimale tra
+    $\forall u \in V, \forall v \in V. (u, v)$.
+\end{enumerate}
+
+\begin{quote}
+  NOTA: non e' noto alcun problema in grado di risolvere il punto 1 senza risolvere
+  anche il punto 2 nel caso peggiore.
+\end{quote}
+
+\subsection{Casi in cui non esiste un cammino minimo}
+
+I casi in cui non esiste un cammino minimo possono essere due:
+\begin{itemize}
+  \item la destinazione non e' raggiungibile.
+  \item quando ci sono dei \textbf{cicli di costo negativo}. In tal caso un
+    qualunque percorso $a$ sarebbe comunuqe battibile da un percorso $b$ che fa
+    la stessa strada di $a$ ma passa per una volta in piu' nel ciclo a costo negativo.
+\end{itemize}
+
+\subsection{Proprieta' dei cammini minimi}
+\begin{itemize}
+  \item assumiamo che non ci siano cicli di costo negativo.
+  \item tra ogni coppia di vertici connessi esiste un cammino \emph{semplice} di costo minimo.
+  \item preso un cammino minino, un suo sottocammino e' anch'esso un cammino
+    minimo tra i vertici d'inizio e destinazione del sottocammino.
+  \item per il punto precedente i nostir algoritmi punteranno a trovare i cammini
+    minimi piu' piccoli per poi allargarli fino a raggiungere la destinazione cercata.
+\end{itemize}
+
+\subsection{Risultati degli algoritmi sui cammini minimi}
+
+Tutti gli algoritmi per torvare dei cammini minimi resituiscolo un albero di
+copertura tale che ogni cammino nell'albero sia un cammino di costo minimio
+per andare dal nodo sorgente $s$ ad un qualunque altro nodo (che si trova nell'albero).
+
+\subsection{Algoritmo di Bellman-Ford}
+
+Dato un grafo $G = (V, E)$ definisco il costo del cammino minimo da $x$ a $y$ come:
+\begin{align*}
+  d_{x,y} = \begin{cases}
+    w(\pi_{x,y}) &\text{se esiste} \\
+    \infty &\text{altrimenti}
+  \end{cases}
+\end{align*}
+
+\begin{quote}
+  NOTA: $d_{v,v} = 0 \forall v \in V$ \\
+  NOTA: vale la disuguaglianza triangolare:
+  \begin{align*}
+    d_{x,z} \leq d_{x,y} + d_{y,z} \quad \forall x, y, z \in V
+  \end{align*}
+\end{quote}
+
+\subsubsection{Condizione di Bellman}
+
+Un particolare caso della disugualianza triangolare vale quando si considera
+un arco $(u, v)$ e una sorgente $s$:
+\begin{align*}
+  d_{s,v} \leq d_{s,u} + w(u, v) \quad \forall u, v \in V
+\end{align*}
+
+\noindent \emph{Dimostrazione}:
+\begin{itemize}
+  \item si parte della disugualianza triangolare:
+    \begin{align*}
+      d_{s,v} \leq d_{s,u} + d_{u,v} \quad \forall (u, v) \in E, s \in V
+    \end{align*}
+  \item ci si ricorda che vale
+    \begin{align*}
+      d_{u,v} \leq w(u, v)
+    \end{align*}
+    poiche' la distanza \emph{minima} tra $u$ e $v$ non puo' essere
+    maggiore del costo dell'arco che li collega
+  \item allora ne segue:
+    \begin{align*}
+      d_{s,v} \leq d_{s,u} + w(u, v) \quad \forall (u, v) \in E, s \in V
+    \end{align*}
+\end{itemize}
+
+Da questa disugualianza si puo' capire che l'arco $(u, v)$ fa parte del cammino
+minimo da $s$ a $v$ $\pi_{s,v}$ sse vale:
+\begin{align*}
+  d_{s,v} = d_{s,u} + w(u, v) \quad \forall (u, v) \in E, s \in V
+\end{align*}
+
+\subsection{Tecnica del rilassamento}
+
+Supponiamo di mantenere una stima $D_{s,v} \geq d_{s,v}$ della lunghezza del
+cammino di costo minimo da $s$ a $v$. Effettuiamo poi dei passi di rilassamento
+(tecnica di raffinamento progressivo) tramite i quali miglioreremo la nostra stima
+fino ad avere $D_{s,v} = d_{s,v}$. In pseudocodice:
+
+\begin{algorithm}[H]
+  \If{$D_{s,u} + w(u,v) < D_{s,v}$}{
+    $D_{s,v} \leftarrow D_{s,u} + w(u,v)$
+  }
+  \caption{Condizione di raffinamento}
+\end{algorithm}
+
+\subsection{Algoritmo di Bellman-Ford}
+
+\begin{algorithm}[H]
+  \KwData{G = (V, E, w), V s = radice da cui partire}
+  \KwResult{\KwSty{double[]}}
+  \Begin{
+    \KwSty{int} n $\leftarrow$ len(V)\;
+    \tcc{predecessor for each node in the path from s to node}
+    \KwSty{int} pred[1..n]\;
+    \tcc{cost of each path from s to node}
+    \KwSty{double} D[1..n]\;
+    \tcc{set the cost of each path from s to any node to $\infty$}
+    \For{\KwSty{int} v $\leftarrow$ 1 \KwTo n}{
+      D[v] $\leftarrow \infty$\;
+      pred[v] $\leftarrow$ -1\;
+    }
+    \tcc{the path from the source to itself has a cost of $0$}
+    D[s] $\leftarrow$ 0\;
+    \For{\KwSty{int} i $\leftarrow$ 1 \KwTo n-1}{
+      \ForEach{(u, v) $\in$ E}{
+        \tcc{relaxing technique condition}
+        \If{D[u] + w(u,v) < D[v]}{
+          D[v] $\leftarrow$ D[u] + w(u,v)
+          pred[v] $\leftarrow$ u;
+        }
+      }
+    }
+    \Return{D}\;
+  }
+  \caption{Algoritmo di Bellman-Ford}
+\end{algorithm}
+
+Costo: $\Theta(n + (n-1) \cdot m) = O(n \cdot m)$
+
+\begin{quote}
+  NOTA: puo' essere ottimizzato fermando l'esecuzione quando il \textbf{foreach}
+  non esegue alcun cambiamento, il che significa che non potremo ulteriormente
+  migliorare le nostre stime.
+\end{quote}
+
+\subsubsection{Dimostrazione per induzione}
+
+Un cammino di lunghezza $k$ viene scoperto al piu' in $k$ passaggi:
+\begin{itemize}
+  \item \textbf{Caso base} ($k = 0$): per andare da $s$ a $v_{k_{|k=0}} = s$ ho costo $0$: \\
+    $D_{s,s} = d_{s,s} = 0$.
+  \item \textbf{Caso ricorsivo} ($k > 0$): per andare da $s$ a $v_{k_{|k>0}}$ posso
+    sfruttare il cammino per andare fino a $v_{k-1}$ e sommarvi anche il peso
+    dell'arco $(v_{k-1}, v_{k})$. Si ha quindi: \\
+    $D_{s,v_k} = d_{s,v_k} = d_{s, v_{k-1}} + w(v_{k-1}, v_k)$
+\end{itemize}
+
+Si ha dunque che al $k$-esimo passagio potremo calcolare la sua lunghezza tramite
+i $k-1$ conti svolti prima, dunque svolgeremo al piu' $k$ passaggi semplici.
+
+\subsubsection{Controllo per cicli negativi}
+
+Una volta eseguito l'algoritmo di Bellman-Ford possono comunque esistere cammini
+migliori in caso ci siano dei cicli di peso negativo. Ecco un semplice loop
+da appendere in fondo all'algoritmo di BF per capire se siamo in un grafo con
+un ciclo di peso negativo.
+
+\begin{algorithm}[H]
+  \ForEach{(u, v) $\in$ E}{
+    \If{D[u] + w(u, v) < D[v]}{
+      \KwSty{throw} "ciclo negativo"\;
+    }
+  }
+  \caption{Condizione per indetificare cicli negativi}
+\end{algorithm}
+
+\subsection{Algoritmo di Dijkstra}
+
+\begin{algorithm}[H]
+  \KwData{G = (V, E, w), V s = radice da cui partire}
+  \KwResult{\KwSty{double[]}}
+  \Begin{
+    \KwSty{int} n $\leftarrow$ len(V)\;
+    \tcc{predecessor for each node in the path from s to node}
+    \KwSty{int} pred[1..n], v, u\;
+    \tcc{cost of each path from s to node}
+    \KwSty{double} D[1..n]\;
+    \tcc{set the cost of each path from s to any node to $\infty$}
+    \For{\KwSty{int} v $\leftarrow$ 1 \KwTo n}{
+      D[v] $\leftarrow \infty$\;
+      pred[v] $\leftarrow$ -1\;
+    }
+    \tcc{the path from the source to itself has a cost of $0$}
+    D[s] $\leftarrow$ 0\;
+    q $\leftarrow$ \KwSty{new PriorityQueue(s, D[s])}\;
+    \While{\KwSty{not} q.is\_empty()}{
+      u $\leftarrow$ q.get\_max()\;
+      q.delete\_max()\;
+      \ForEach{v $\in$ adjacent(u)}{
+        \uIf{D[v] = $\infty$}{
+          D[v] $\leftarrow$ D[u] + w(u, v)\;
+          q.insert(v, D[v])\;
+          pred[v] = u\;
+        }
+        \ElseIf{D[u] + w(u, v) < D[v]}{
+          D[v] $\leftarrow$ D[u] + w(u, v)\;
+          q.update\_key(v, D[v])\;
+          pred[v] = u\;
+        }
+      }
+    }
+    \Return{D}\;
+  }
+  \caption{Algoritmo di Dijkstra}
+\end{algorithm}
+
+\subsection{Lemma di Dijkstra}
+
+Sia $G = (V, E, w)$ un grafo orientato con $w$ funzione peso $w: V \times V \to \mathbb{R}^+$.
+Sia $T$ una parte dell'\emph{albero dei cammini di costo minimo}, per cui $T$
+rappresenta cammini che partono da $s$ tutti di costo minimo.
+Si ha dunque che l'arco $(u, v)$ con $u \in vertices(T)$ e $v \not\in vertices(T)$
+che minimizza la quantita' $d_{s,u} + w(u, v)$ appartiene dunque all'albero $T$
+nel cammino da $s$ a $v$.
+
+\subsubsection{Dimostrazione (per assurdo)}
+
+Supponiamo per assurdo che $(u, v)$ non appartenga al cammino di costo minimo
+da $s$ a $v$. Quindi $d_{s,u} + w(u, v) > d_{s,v}$ ($H_1$). \\
+Quindi deve esistere il cammino $\pi_{s,v}$ che porta da $s$ a $v$ ma non passa
+per $(u, v)$ con costo inferiore a $d_{s,u} + w(u, v)$. \\
+Il cammino $\pi_{s,v}$ puo' essere spezzato in $\pi_{s,y}$ e $\pi_{y,v}$ dove
+$y$ e' il primo nodo che scegliamo al posto di $u$ per ottenere il cammino minimo. \\
+Si ha dunque che $d_{s,v} = d_{s,x} + w(x, y) + d_{y,v}$ ($H_2$). 
+
+Tuttavia, per ipotesi sapevamo $(u, v)$ e' l'arco che collega un vertice in $T$
+con uno non ancora in $T$ tale che esso minimizza la somma $d_{s,u} + w(u, v)$. \\
+In particolare: $d_{s,u} + w(u, v) \leq d_{s,x} + w(x, y)$ ($H_3$).
+
+\begin{align*}
+  d_{s,u} + w(u, v) &> d_{s, v} \quad \text{da } H_1\\
+  d_{s,u} + w(u, v) &> d_{s,x} + w(x, y) + d_{y,v} \quad \text{per } H_2\\
+  &\geq d_{s,x} + w(x, y) \quad \text{da pesi } \geq 0\\
+  &\geq d_{s,u} + w(u, v) \quad \text{da } H_3
+\end{align*}
+
+Arriviamo ad avere che una cosa e' strettamente maggiore di se stessa, il che e' assurdo.
+\qed
+
+\subsection{Algoritmo di Floyd e Warshall}
+
+\begin{quote}
+  Algoritmo volto a risolvere il problema \textbf{all-pair shortest paths},
+  ovvero torvare il cammino minimio $\forall x,y \in V$.
+\end{quote}
+
+Questo algoritmo, scritto tramite la tecnica della programmazione dinamica, puo'
+essere applicato a grafi non rientati purche' non ci siano cicli negativi.
+Com'e' tipico di questa tecnica ridurremo il problema principale in sottoproblemi
+semplici, analizzando solo parti del nostro grafo alla volta, componendo poi le
+soluzioni per trvoare il risultato finale. Questo funziona poiche' siamo alla
+ricerca di cammini semplici, useremo quindi i vertici una volta sola.
+
+Sia $D_{x,y}^k$ la distanza minima dal vertice $x$ sorgente a quello $y$ di arrivo,
+nell'ipotesi in cui eventuali nodi intermedi possano essere solo quelli $V[1..k]$,
+ossia i primi $1..k$ vertici (possiamo immaginare che ad ogni vertice sia associato
+un numero, un identificatore che va da $1$ a $n$ dove $n$ e' il numero di vertici).
+
+La soluzione al nostro problema sara' $D_{x,y}^n$ per ogni coppia di nodi $x$ e $y$,
+dove $x,y \in \{1,\ldots,n\}, k \in \{0,\ldots,n\}$.
+
+\subsubsection{Soluzioni per $x=y$ o $k=0$}
+
+Per $k=0$ abbiamo che dobbiamo raggiungere $y$ da $x$ usando nessun nodo, il che
+significa che basta controllare se esiste un arco diretto tra i due vertici $(x,y)$.
+
+Per $x=y$ la risposta e' ovvia, i nodi coincidono quindi con $0$ spostamenti
+abbiamo gia' risolto il problema.
+
+\subsubsection{Soluzioni dei casi non banali}
+
+Ora risolviamo il caso generale $D_{x,y}^k$ dove $x\neq \wedge k\geq1$ assumendo
+(per la programmazione dinamica) di aver risolto gia' i problemi $D_{x',y'}^k-1
+\, \forall x',y' \in V$
+
+\noindent Abbiamo due situazioni possibili:
+\begin{enumerate}
+  \item \textbf{$V[k]$ non viene attraversato}: la soluzione e' equivalente a 
+    quella del sottoproblema semplice precendete $D_{x,y}^{k-1}$.
+  \item \textbf{$V[k]$ viene attraversato}: se $k$ viene attraversato sappiamo che
+    nel nostro cammino esso compare, quindi si puo' spezzare il cammino in due pezzi,
+    $D_{x,y}^{k} = D_{x,k}^{k-1} + D_{k,y}^{k-1}$
+\end{enumerate}
+
+La soluzione al sottoproblema generale $D_{x,y}^k$ sara' uguale al minimo tra i
+costi dei due casi, ottenendo dunque:
+\begin{align*}
+  D_{x,y}^k = \min \{ D_{x,y}^{k-1}, D_{x,k}^{k-1} + D_{k,y}^{k-1} \}
+\end{align*}
+
+\subsubsection{Soluzione finale}
+
+Mettendo assieme le idee raccolte qui' sopra, possiamo formalizzare la soluzione
+in modo matematico. Partiamo dal caso in cui $k = 0$ o $x = y$.
+
+\begin{align*}
+  D_{x,y}^{k=0} = \begin{cases}
+    0 &\text{se } x = y \\
+    w(x, y) &\text{se } (x, y) \in E \\
+    \infty &\text{se } (x, y) \not\in E
+  \end{cases}
+\end{align*}
+
+Per il caso non banale invece possiamo usare la formula enunciata in precedenza:
+\begin{align*}
+  D_{x,y}^{k\geq1} = \min \{ D_{x,y}^{k-1}, D_{x,k}^{k-1} + D_{k,y}^{k-1} \}
+\end{align*}
+
+\begin{algorithm}[H]
+  \KwData{G = (V, E, w)}
+  \KwResult{\KwSty{double[]}}
+  \Begin{
+    \KwSty{int} n $\leftarrow$ len(V)\;
+    \tcc{cube matirx where all paths are stored as k increases}
+    \KwSty{double} D[1..n][1..n][0..n]\;
+    \For{x $\leftarrow$ 1 \KwTo n}{
+      \For{y $\leftarrow$ 1 \KwTo n}{
+        \tcc{base case}
+        \uIf{x = y}{
+          D[x][y][0] $\leftarrow$ 0\;
+        }
+        \uElseIf{$(x,y) \in E$}{
+          D[x][y][0] $\leftarrow$ w(x,y)\;
+        }
+        \Else{
+          D[x][y][0] $\leftarrow \infty$\;
+        }
+      }
+    }
+    \For{k $\leftarrow$ 1 \KwTo n}{
+      \For{x $\leftarrow$ 1 \KwTo n}{
+        \For{y $\leftarrow$ 1 \KwTo n}{
+          \tcc{the body of the loop is the complex-case, an algorithmic
+            rewrite of the $\min$ function in the bastract problem}
+          D[x][y][k] $\leftarrow$ D[x][y][k-1]\;
+          \If{D[x][y][k] $>$ D[x][k][k-1] + D[k][y][k-1]}{
+            D[x][y][k] $\leftarrow$ D[x][k][k-1] + D[k][y][k-1]\;
+          }
+        }
+      }
+    }
+    \tcc{return the last filled table}
+    \Return{D[1..n][1..n][n]}\;
+  }
+  \caption{Algoritmo di Floyd-Warshall}
+\end{algorithm}
+
+Si puo' notare poi come l'algoritmo possa essere ottimizzato dal punto dello
+spazio poiche' si possono fare modifiche in place, in quanto le modifiche applicate
+non cambiano i valori che possono tornarci utili nella tabella precedente $k-1$.
+
+\noindent Eccone dunque una versione ottimizzata dal punto di vista dello spazio:
+
+\begin{algorithm}[H]
+  \KwData{G = (V, E, w)}
+  \KwResult{\KwSty{double[]}}
+  \Begin{
+    \KwSty{int} n $\leftarrow$ len(V)\;
+    \tcc{cube matirx where all paths are stored (all variations in one as k increases)}
+    \KwSty{double} D[1..n][1..n], x, y\;
+    \For{x $\leftarrow$ 1 \KwTo n}{
+      \For{y $\leftarrow$ 1 \KwTo n}{
+        \tcc{base case}
+        \uIf{x = y}{
+          D[x][y] $\leftarrow$ 0\;
+        }
+        \uElseIf{$(x,y) \in E$}{
+          D[x][y] $\leftarrow$ w(x,y)\;
+        }
+        \Else{
+          D[x][y] $\leftarrow \infty$\;
+        }
+      }
+    }
+    \For{k $\leftarrow$ 1 \KwTo n}{
+      \For{x $\leftarrow$ 1 \KwTo n}{
+        \For{y $\leftarrow$ 1 \KwTo n}{
+          \tcc{the body of the loop is the complex-case, an algorithmic
+            rewrite of the $\min$ function in the bastract problem}
+          \If{D[x][y] $>$ D[x][k] + D[k][y]}{
+            D[x][y] $\leftarrow$ D[x][k] + D[k][y]\;
+          }
+        }
+      }
+    }
+    \tcc{return the last filled table}
+    \Return{D[1..n][1..n]}\;
+  }
+  \caption{Algoritmo di Floyd-Warshall (ottimizzato)}
+\end{algorithm}
+
+\subsubsection{Ricorstruzione dei cammini}
+
+Per ricorstruire i cammini si usera' una struttura dati aggiuntiva, un array $n \times n$,
+chiamata $next$ che contiene in positione $next[x][y]$ \emph{il secondo nodo} necessario
+per andare da $x$ a $y$ (il primo nodo e' $x$ e l'ultimo e' $y$).
+Ecco una ulteriore riscrittura dell'algoritmo per tenere traccia del percorso.
+
+\begin{algorithm}[H]
+  \KwData{G = (V, E, w)}
+  \KwResult{\KwSty{double[]}}
+  \Begin{
+    \KwSty{int} n $\leftarrow$ len(V)\;
+    \tcc{cube matirx where all paths are stored, and cube matrix for keeping
+      track of each step in the paths}
+    \KwSty{double} D[1..n][1..n], next[1..n][1..n] x, y\;
+    \For{x $\leftarrow$ 1 \KwTo n}{
+      \For{y $\leftarrow$ 1 \KwTo n}{
+        \tcc{base case}
+        \uIf{x = y}{
+          D[x][y] $\leftarrow$ 0\;
+          next[x][y] $\leftarrow$ -1\;
+        }
+        \uElseIf{$(x,y) \in E$}{
+          D[x][y] $\leftarrow$ w(x,y)\;
+          next[x][y] $\leftarrow$ y\;
+        }
+        \Else{
+          D[x][y] $\leftarrow \infty$\;
+          next[x][y] $\leftarrow$ -1\;
+        }
+      }
+    }
+    \For{k $\leftarrow$ 1 \KwTo n}{
+      \For{x $\leftarrow$ 1 \KwTo n}{
+        \For{y $\leftarrow$ 1 \KwTo n}{
+          \tcc{the body of the loop is the complex-case, an algorithmic
+            rewrite of the $\min$ function in the bastract problem}
+          \If{D[x][y] $>$ D[x][k] + D[k][y]}{
+            D[x][y] $\leftarrow$ D[x][k] + D[k][y]\;
+            next[x][y] $\leftarrow$ next[x][k]\;
+          }
+        }
+      }
+    }
+    \tcc{return the last filled table}
+    \Return{D[1..n][1..n]}\;
+  }
+  \caption{Algoritmo di Floyd-Warshall (ottimizzato)}
+\end{algorithm}
+
+\end{document}

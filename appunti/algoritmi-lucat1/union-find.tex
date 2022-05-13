@@ -1,0 +1,134 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{enumerate}
+
+\title{\textbf{Union Find}}
+\author{Luca Tagliavini}
+\date{April 13, 2021}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\pagebreak
+
+\subsection{Union Find}
+
+Risolve il problema dell'elaborazione di dati su \emph{insiemi disgiunti}.
+Immaginiamo di avere due insiemi disgiunti, ossia contenenti elementi che appartengono
+solo ad uno o all'altro, matematicamente $U_1 \cap U_2 = \emptyset$. Le operazioni
+su questa struttura dati sono le basilari tra due insiemi:
+
+\begin{itemize}
+  \item \emph{make\_set}: crea un insieme singoletto a partire da un singolo
+    elemento
+  \item \emph{find}: cerca tra gli insiemi disponibili quello che contiene il
+    dato elemento
+  \item \emph{union}: unisce due insiemi tra di loro
+\end{itemize}
+
+La struttura dati contiene un insieme dinamico di insiemi
+$S = \{ S_1, S_2, \ldots, S_k \}$ tutti disgiunti tra loro. Tutti gli insiemi
+complessivamente contengono $n \geq k$ elementi (dove $n$ e' la somma complessiva
+di tutti gli elementi degli insiemi, $k$ e' il numero degli insiemi: dato che ogni
+insieme e' almeno singoletto l'assunzione e' ovvia).
+Oltretutto ogni insieme e' indentificato da un \emph{rappresentante univoco}.
+
+La scelta del rappresentate e' importante, in qunato deve rispettare due leggi:
+\begin{itemize}
+  \item il rappresentante di $S_i$ deve essere un qualunque valore contenuto in $S_i$
+  \item chiamare \emph{find} su $k, K_1 \in S_i$ deve restituire lo stesso rappresentante
+  \item il rappresentatnte puo' cambiare solo dopo una operazione di unione
+\end{itemize}
+
+Un esempio di problema risolvibile tramite strutture \emph{union find} sono quelli
+della gestione delle spedizioni o del tracciamento dei contatti su una PCB.
+
+\subsubsection{Operazioni}
+
+\begin{itemize}
+  \item \emph{make\_set(elem $\overline{x}$)} $\rightarrow$ \emph{repr}: creo un insieme
+    singoletto $\{ \overline{x}\}$ ed uso il valore $\overline{x}$ come rappresentante univoco. \\
+    Notare che per le proprieta' della struttura l'elemento $\overline{x}$ non deve
+    essere gia' stato inserito nella struttura dati in precedenza.
+  \item \emph{find(elem x)} $\rightarrow$ \emph{repr}: restituice il rappresentante
+    dell'insieme che contiene l'elemento $x$.
+  \item \emph{union(repr x, repr y)} $\rightarrow$ \emph{repr}: unisce i due insiemi
+    indicati da $x$ e $y$, e scegliamo come nuovo rappresentante canonico quello
+    di $x$.
+\end{itemize}
+
+\subsection{Implementazioni}
+
+\begin{itemize}
+  \item \emph{quick-find}: usano alberi di altezza uno per ogni insieme, avendo tempi dell'ordine: \\
+    \emph{make\_set}, \emph{find}: $O(1)$, \emph{union}: $O(n)$.
+  \item \emph{quick-union}: usano alberi di altezza dinamica per ogni insieme, avendo tempi dell'ordine: \\
+    \emph{make\_set}, \emph{union}: $O(1)$, \emph{find}: $O(n)$.
+  \item esistono poi implementazioni piu' serie di entrambe le tecniche per avere
+    tempi logaritmici sulle operazioni di \emph{find} o \emph{union} che prima erano lineari.
+\end{itemize}
+
+\subsubsection{Quick Find}
+
+Usando alberi di altezza uno per gli insiemi, quando si chiama \emph{find(elem x)}
+sappiamo che $x$ contiene un riferimento al padre (radice dell'albero), che e'
+il rappresentante dell'insieme, quindi il costo sara' chiaramenteo $O(1)$.
+
+Per implementare \emph{union(repr x, repr y)} possiamo invece cambiare semplicemente
+i puntatori di tutti i nodi di $y$ in modo che puntino a $x$ come padre. Nel caso
+peggiore, in cui uniamo $x = |\{\ldots\}| = 1$ con $y = |\{\ldots\}| = n-1$ e
+percio' dovremo fare $n-1$ assegnamenti per i figli di $y$: il costo sara' dunque $O(n)$.
+
+\subsubsection{Quick Union}
+
+Si rappresentano gli insiemi tramite un albero radicato generico, dunque ogni
+\emph{union(repr x, repr y)} sara' semplicemente una aggiunta dell'albero $y$ come
+ultimo nodo di $x$, il che ha chiaramente costo $O(1)$ (facendo $y.parent = x$).
+
+Per la \emph{find(elem x)} si parte dal nodo $x$ al quale abbiamo un riferimento
+e saliamo l'albero fino alla radice la quale contiene il rappresentante, il che
+nel caso pessimo (quando l'albero e' lineare come una lista) avra' costo $O(n)$.
+
+\subsubsection{Euristiche di ottimizzazione}
+
+\textbf{Euristiche su Quick Find}:
+
+L'operazione \emph{union} e' poco efficiente nel caso in cui uniamo a un singoletto
+un insieme grande $n-1$, ma possiamo fare di meglio in questo caso. Anzi che fare
+l'unione classica come abbiamo definito prima, possiamo guardare il "peso" di ogni
+albero (mantenuto come valore nella radice in tempo costante $O(1)$ ad ogni operazione)
+e quando andiamo a fare l'union svolgiamo il cambiamento dei campi "parent"
+sull'insieme che ha peso minore, il che ci garantisce di svolgere meno operazioni
+nei casi pessimi. Quando si sposta il primo insieme nel secondo, la specifica sulla
+scelta del rappresentante non viene rispettata, quindi aggiorniamo la radice in
+modo tale che sia uguale a quella del primo albero.
+
+Prendendo un insieme singoletto contenente $x$, esso potra' al massimo cambiare
+padre $\log_2 n$ volte, poiche' ogni volta che viene inserito in un altro
+insieme \emph{raddoppia la grandezza dell'insieme di appartenenza di $x$}, e dunque
+al piu' il cambiamento sara' necessario al massiom $\log_2 n$ volte (ragionamento
+inverso degli algoritmi di ricerca ordinata ad esempio).
+
+Ne segue attraverso alcuni passaggi enunciati nelle slide che il costo nel caso
+pessio e' $O(n/2) = O(n)$, tuttavia nel caso medio, facendo un costo ammortizzato
+si ha che il costo sara' $O(\log_2 n)$. \\ \\
+
+\textbf{Euristiche su Quick Union};
+
+L'operazione \emph{find} e' particolarmente rallentata nel caso in cui l'albero
+assuma una profondita' eccessiva, accomunando la sua struttura a quella di una lista.
+Una euristica mirata a risolvere questo problema e' quella che tiene traccia in ogni
+radice del \emph{rank} (rango) di un albero che ne indica la profondita' massima.
+Come nella euristica precedente grazie a questa metrica possiamo fare scelte
+intelligenti durante l'unione di due alberi. In particolare quello che faremo sara'
+unire $y$ in $x$ solo se $y.rank < x.rank$, altrimenti faremo l'opposto ricordandoci
+di cambiare poi le radici per mantenere la proprieta' del rappresentante.
+
+In questo modo avremo alberi al massimo di profondita' logaritmica. L'operazione
+\emph{find} che ha costo pessimo pari alla profondita' massima dell'albero avra'
+dunque un costo massimo $O(\log_2 n)$.
+
+\end{document}

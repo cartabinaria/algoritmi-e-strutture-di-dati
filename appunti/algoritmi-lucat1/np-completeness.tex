@@ -1,0 +1,156 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumerate}
+\usepackage[ruled]{algorithm2e}
+\usepackage{float}
+
+\DontPrintSemicolon
+\renewcommand{\thealgocf}{} % don't print algorithm numbers
+\hfuzz=100.0pt  % ignore paragraph lengths warnings
+
+\title{\textbf{Teoria della NP completezza}}
+\author{Luca Tagliavini}
+\date{March 17-.., 2021}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduzione}
+
+I problemi risolvibili tramite algoritmi hanno un costo associato come sappaimo.
+I problemi NP-completi cercano di capire se un qualcosa e' computabile, entro
+un dato limite. I risultati di tali ragionamenti saranno dunque valori booleani.
+
+Ecco alcuni esempi di problemi NP-completi:
+\begin{enumerate}
+  \item \textbf{Commesso viaggiatore}: dato un grafo completo ed un valore $k$,
+    decidere se esiste un cammino semplice che copre tutti i vertici di peso inferiore a $k$.
+  \item \textbf{Bin packing problem}: dati $n$ oggetti ognungo con un peso $P[n]$
+    e $k$ contenitori di capacita' $c$, decidere se e' possibile distribuire tutti
+    gli $n$ oggetti nei $k$ contenitori senza eccedere la capacita' $c$.
+  \item \textbf{Sudoku}: data una matrice di dimensione $n^2 \times n^2$(sudoku
+    classico $9 \times 9$ organizzata in blocchi di dimensioni $n \times n$ (sudoku
+    classico $3 \times 3$) con alcune celle gia' riempite, sia possibile riempire
+    le restanti in modo che ogni riga, ogni colonna e ogni blocco $n \times n$
+    contenga tutti i numrei compresi tra $1 e n^2$.
+\end{enumerate}
+
+\subsection{Formalizzazione}
+
+Consideriamo un problema $K$ come una relazione tra $Q \subseteq I \times S$ dove
+\begin{itemize}
+  \item $I$ e' l'insieme delle \emph{istanze d'ingresso}.
+  \item $S$ e' l'insieme delle \emph{soluzioni}.
+\end{itemize}
+Immaginiamo $Q$ come un predicato che preso in input il dato $x \in I$ e la
+soluzione $s \in S$ restituisce:
+\begin{enumerate}
+  \item $1 \iff (x,s) \in Q$ ($s$ soluzione del problema $Q$ sull'istanza $x$)
+  \item $0$ altrimenti ($s$ \textbf{non} e' soluzione del problema $Q$ sull'istanza $x$)
+\end{enumerate}
+
+\subsubsection{Tipologie di problemi}
+
+Esistono problemi di vario tipo, come ricerca (trovare un elemento in un array)
+o di ottimizzazione (trovare il cammino minimo) ma sappiamo da prima che ogni
+problema di un qualunque tipo ha un suo problema corrispondente del tipo
+\textbf{decisionale} che restituisce un booleano in base alla \emph{trattabilita'}
+del problema.
+
+\subsection{Classi di complessita'}
+
+Data una funzione $f(n)$, chiamiamo $TIME(f(n))$ o $SPACE(f(n))$ l'insieme di tutti
+i problemi che hanno una soluzione algoritmica di costo computazionale $O(f(n))$.
+
+\subsubsection{Classe polinomiale}
+
+La classe $P$ dei problemi risolvibili in \textbf{tempo} \emph{polinomiale} nella
+dimensione $n$ dell'istanza d'ingresso:
+\begin{align*}
+  P = \cup^{\infty}_{c=0} TIME(n^c)
+\end{align*}
+
+La classe $PSPACE$ dei problemi risolvibili in \textbf{spazio} \emph{polinomiale}
+nella dimensione $n$ dell'istanza d'ingresso:
+\begin{align*}
+  PSPACE = \cup^{\infty}_{c=0} SPACE(n^c)
+\end{align*}
+
+\subsubsection{Classe esponenziale}
+
+La classe $EXPTIME$ dei problemi risolvibini il \textbf{tempo} \emph{esponenziale}
+nella dimensione $n$ dell'istanza d'ingresso:
+\begin{align*}
+  EXPTIME = \cup^{\infty}_{c=0} TIME(2^{n^c})
+\end{align*}
+
+\subsubsection{Ordinamento delle classi}
+
+E' abbastanza facile inutire come $P \subset EXPTIME$, in quanto:
+\begin{enumerate}
+  \item Entambe misurano il tempo.
+  \item Un problema con tempo polinomiale sara' sempre di complessita'
+    inferiore rispetto a uno di tempo esponenziale.
+\end{enumerate}
+
+\noindent Capiamo oltretutto che $P \subseteq PSPACE$ in quanto un algoritmo
+che richiede un tempo polinomiale al piu' ad accedere ad un numero polinomiale
+di locazioni di verse. \\
+Si puo' oltretutto capire che $PSPACE \subseteq EXPTIME$, in quanto
+una memoria di $n^c$ locazioni puo' essere al piu' essere in $2^{n^c}$ stati,
+che sono sempre inferiori ad un numero esponenziale.
+
+\subsection{Esempio: problema SAT}
+
+Il problema SAT, ovvero della soddisfacibilita' di una espressione booleana, che
+contiene solo operazioni di $\wedge, \vee, \overline{\cdot}$. Anche espressioni
+booleane piu' complesse possono sempre essere ridotte a \emph{forme normali congiuntive},
+ovvero forme che contegono piu' clausole ($\vee$ tra letterali, possibilmente negati)
+a loro volta unite da una serie di $\wedge$.
+
+Una possibile soluzione al problema e' provare ogni coppia di soluzioni, dando
+ogni possibile valore a ogni $n$ variabile. Prenderemo dunque coppie $\overline{c}
+\in \mathbb{B}^n$ che ha dimensione $2^n$, il che rende il problema appartenente
+alla famiglia $PSPACE$.
+
+\subsection{Certificare vs Verificare}
+
+Quando ci viene chiesto di \emph{verificare} se una determinata formula booleana e'
+soddisfacibile per un numero $n$ di variabili, ci basta capire se esiste almeno
+una coppia di $n$ variabili tale che l'espressione vale. \\
+Tuttavia, e' desiderabile non solo capire se un problema e' risolvibile, ma bensi'
+\emph{certificare} restituendo un valore che accerta che tale problema ammette la soluzione data.
+
+\subsection{La cateogirna NP}
+
+La cateogira $NP$ e' quella categoria di problemi che ammettono \emph{certificati
+vertificabili} in tempo polinomiale.
+
+\subsection{Non determinismo}
+
+Gli algoritmi visti in precedenza si comportano in maniera \emph{deterministica},
+le loro mosse sono prevedibili e ripercorribili in modo sicuro e oggettivo. Immaginiamo
+ora di ricevere un aiuto esterno, che ci consente di trovare una soluzione conveniente
+per un determinato problema, e fa proseguire il nostro algoritmo nella direzione giusta.
+Questa tecnica di soluzione e' detta \textbf{non deterministica}, poiche' non
+ha uno svolgimento prevedibile.
+
+L'albero di tute le scelte \emph{non deterministiche} fatte viene rappresentato
+come un albero che ha nelle foglie valori compresi in $\mathbb{B}$, dove $1$ indica
+il successo dell'algoritmo, mentre lo $0$ indica una strada seguita ma non valida.
+Se esiste almeno una foglia con valore $1$ l'intero calcolo e' fallito e' corretto,
+e si restituisce dunque $1$, altrimenti $0$.
+
+\subsection{Classe polinomiale non deterministica}
+
+Data una funzione $f(n)$, chiamiamo $NTIME(f(n))$ l'insieme dei problemi decisionali
+che possono essere risolti da un algoritmo non deterministico in tempo $O(f(n))$.
+La classe $NP$ e' quella dei problemi risolvibili in tempo polinomiale non
+deterministico nella dimensione $n$ dell'istanza d'ingresso:
+\begin{align*}
+  NP = \cup^{\infty}_{c=0} NTIME(n^c)
+\end{align*}
+
+\end{document}

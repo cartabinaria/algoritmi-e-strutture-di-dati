@@ -1,0 +1,120 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{enumerate}
+
+\title{\textbf{Algoritmi di Fibonacci}}
+\author{Luca Tagliavini}
+\date{February 2021}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\pagebreak
+
+\section{Definizone di fibonacci}
+
+\begin{align*}
+F_1 &= 1 \\
+F_2 &= 1 \\
+F_n &= F_{n-1} + F_{n-2} \quad \forall n > 2
+\end{align*}
+
+Esisterebbe una formula matematica che sfrutta \emph{la sezione aurea} per calcolare l'$n$-esimo numero di fibonacci tramite semplici moltiplicaizoni ed elevamenti a potenza. \\
+Tuttavia, il valore della sezione aurea e' un numero irrazionale e come tale non puo' essere rappresentato con precisione da un calcolatore (tramite una frazione di interi).
+Percio' su particolari valori, il risultato ottenuto non sarebbe quello corretto.
+
+\section{Implementazioni}
+\subsection{Fibonacci nel modo matematico}
+
+\begin{lstlisting}
+double fib(int n) {
+  return 1.0/Math.sqrt(5.0)*
+  (Math.pow((1.0+Math.sqrt(5.0))/2.0, n) - 
+    Math.pow((1.0-Math.sqrt(5.0))/2.0, n));
+}
+\end{lstlisting}
+
+E' la soluzione piu' veloce a livello di performance in quanto usando solo funzioni elementari come moltiplicazioni ed elevamento a potenza abbiamo un tempo di esecuzione \emph{lineare}.
+Tuttavia e' anche un metodo che arrivando a valori attendo al 70-72 si iniziano ad ottenere errori apprezzabili.
+\begin{quote}
+  Questo approccio sara' anche piu' veloce dell'algoritmo che alla fine riterremo migliore.
+\end{quote}
+
+\subsection{Fibonacci seguendo la definizone ricorsiva}
+
+\begin{lstlisting}
+algoritmo fib(int n) -> int
+  if n == 1 or n == 2 then
+    return 1
+  else
+    return fib(n-1) + fib(n-2)
+end
+\end{lstlisting}
+
+Tempo esponenziale, lavoro sprecato calcolando numerosissime volte $fib(1)$ o $fib(2)$.
+
+\subsection{Fibonacci iterativo}
+
+\begin{lstlisting}
+fib( int n ) {
+  BigInteger prev = new BigInteger("1"), last=new BigInteger("1"), help;
+  for (int i=3; i<=n; i++) {
+    help = last;
+    last = prev.add(last);
+    prev = help;
+  }
+  return last;
+}
+\end{lstlisting}
+
+Questa e' la migliore versione iterativa utilizzando solo tre variabili. L'algoritmo e' nettamente piu' veloce di quello ricorsivo in quanto rimuove le computazioni inutili di valori gia' calcolati, tenendo traccia dei valori precedenti in due variabili ausiliarie.
+
+\subsection{Fibonacci con le matrici}
+
+$A = \begin{pmatrix}
+1 & 1\\
+1 & 0
+\end{pmatrix}$ \\
+Per ogni $n \geq 2$ si ha: \\
+$A^{n-1} = \begin{pmatrix}
+  F_n & F_{n-1}\\
+  F_{n-1} & F_{n-2}
+\end{pmatrix}$ \\
+dove $F_n$ e' il valore che volevamo ottenere e quindi useremo come risultato nell'algoritmo: \\
+
+\begin{lstlisting}
+algoritmo fib(int n) -> int
+\end{lstlisting}
+$A = \begin{pmatrix}
+1 & 1\\
+1 & 0
+\end{pmatrix}$
+\begin{lstlisting}
+  for i := 2 to n-1 do
+\end{lstlisting}
+$\quad \quad A = A \cdot \begin{pmatrix}
+1 & 1\\
+1 & 0
+\end{pmatrix}$
+\begin{lstlisting}
+  end
+  return A[1][1]
+end
+\end{lstlisting}
+
+Tuttavia questo algoritmo e' veloce tanto quanto (peggio in realta' poiche' esegue moltiplicazioni tra matrici) la versione iterativa. \\
+Fortunatamente c'e' una tecnica furba per svolgere l'elevazione a potenza che ci e' necessaria grazie alla quale si riesce a ottenere un $O(\log n)$.
+
+\section{Stima del tempo d'esecuzione}
+
+Il calcolo del tempo d'esecuzione si svolge tramite la "conta" del numero di operazioni elementari che i nostri algoritmi svolgono.
+Le stime non hanno lo scopo di essere precise nell'unita', ma vogliono arrotondare all'ordine di grandezza del tempo richiesto.
+
+Ad esempio, se avessimo 5 operazioni di base (qualche if, qualche somma, qualche compare) arrotondiamo il numero di operazioni svolte a $O(1)$.
+Il numero di operazioni base non ci interessa particolarmente, quanto piuttosto come le operazioni e sottochiamate aumentano in base all'input.
+Nel nostro caso d'esempio di fibonacci ricorsivo i check non variano in base all'input, quindi possiamo approssimare con $O(n)$, poiche' la maggior parte del tempo viene spesa a svolgere chiamate ricorsive, non operazion di base.
+
+\end{document}

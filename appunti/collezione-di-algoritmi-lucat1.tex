@@ -1,0 +1,1185 @@
+\documentclass[oneside]{book}
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{thmtools}
+\usepackage[ruled]{algorithm2e}
+\usepackage{float}
+\usepackage[hidelinks]{hyperref}
+
+\DontPrintSemicolon
+\SetKw{KwNot}{not}
+\SetKw{KwOr}{or}
+\SetKw{KwAnd}{and}
+\SetKw{Break}{break}
+\SetKw{KwBack}{back to}
+\SetKw{KwFn}{fn}
+\SetKw{KwTree}{Tree}
+\SetKw{KwQueue}{Queue}
+\SetKw{KwBFS}{BFS}
+\SetKwProg{voidproc}{begin}{}{end}
+\setlength{\interspacetitleruled}{0pt} % no double algorithm header line
+\setlength{\algotitleheightrule}{0pt} % no double algorithm header line
+\hfuzz=100.0pt  % ignore paragraph lengths warnings
+
+% theorem-like algorithm sorting
+\newtheorem{alg}{Algoritmo}
+\renewcommand{\listtheoremname}{Algoritmi}
+
+\title{Collezione di Algoritmi}
+\author{Luca Tagliavini}
+
+\begin{document}
+
+\maketitle
+\listoftheorems
+\pagebreak
+
+\begin{alg}[Depth-First Search]
+  Provede una ricerca in profondit\`a su alberi. Nel codice seguente viene mostrata
+  la versione per alberi binari ma \`e facile adattarlo a alberi $n$-ari.
+  Ne esitono tre varianti: {\normalfont pre,in,post}-ordine.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{visit}{visit}
+    \SetKwFunction{dfs}{dfs}
+    \SetKwProg{recursive}{begin}{}{end}
+
+    \recursive{\dfs{\KwTree t, \KwFn \visit}}{
+      \If{t $\neq$ null}{
+        \tcc{\visit pu\`o essere chiamata prima, in mezzo o dopo le chiamate ricorsive
+        per ottenere rispettivamente ricerche \emph{pre,in,post}-ordine}
+        \visit{t}\;
+        \dfs{t.left, \visit}\;
+        \dfs{t.right, \visit}\;
+      }
+    }
+  \end{algorithm}
+\end{alg}
+
+\begin{alg}[Breadth-First Search]
+  La ricerca in ampiezza visita l'albero livello-per-livello. Per ottnere il
+  funzionamento desiderato useremo una \textbf{Queue}.
+  \begin{algorithm}[H]
+    \SetKwFunction{visit}{visit}
+    \SetKwFunction{bfs}{bfs}
+
+    \voidproc{\bfs{\KwTree t, \KwFn \visit}}{
+      \KwQueue $queue \gets t$\;
+      \While{queue is \KwNot empty}{
+        \KwTree $t \gets queue$\;
+        \visit{t}\;
+        \If{t.left $\neq$ null}{
+          $queue \gets t.left$\;
+        }
+        \If{t.right $\neq$ null}{
+          $queue \gets t.right$\;
+        }
+      }
+    }
+  \end{algorithm}
+  \begin{quote}
+    \normalfont
+    Le operazioni $\gets queue$ e $queue \gets$ rappresentano
+    rispettivamente l'estrazione e l'inseriemnto in coda.
+  \end{quote}
+\end{alg}
+
+\pagebreak
+
+\begin{alg}[Ricerca BST]
+  Algoritmo utilizzato per effettuare una ricerca binaria su un Binary Search Tree,
+  che rispetta dunque le seguenti proprieta':
+  \begin{enumerate}
+    \item Ogni nodo ha associato una \textbf{chiave} e un campo \textbf{data}
+    \item Le chiavi a \textbf{sinistra} sono $\leq$ a quella del nodo padre
+    \item Le chiavi a \textbf{destra} sono $\geq$ a quella del nodo padre
+  \end{enumerate}
+  Se ne possono scrivere una versione ricorsiva o iterativa, di seguito riportate.
+
+  \textbf{Versione ricorsiva}: \\
+  \begin{algorithm}[H]
+    \SetKwFunction{search}{search}
+    \SetKwProg{proc}{begin}{ $\rightarrow$ \KwBFS}{end}
+
+    \proc{\search{\KwBFS t, \KwSty{Key} key}}{
+      \uIf{t = null \KwOr t.key = key}{
+        \Return null\;
+      }
+      \uElseIf{t.key $\geq$ key}{
+        \Return \search{t.left, key}\;
+      }
+      \Else{
+        \Return \search{t.right, key}\;
+      }
+    }
+  \end{algorithm}
+
+  \textbf{Versione iterativa}: \\
+  \begin{algorithm}[H]
+    \SetKwFunction{search}{search}
+    \SetKwProg{proc}{begin}{ $\rightarrow$ \KwSty{BFS}}{end}
+
+    \proc{\search{\KwSty{BFS} t, \KwSty{Key} key}}{
+      \While{t $\neq$ null \KwSty{or} t.key $\neq$ key}{
+        \uIf{t.key $\geq$ key}{
+          $t \gets t.right$\;
+        }
+        \Else{
+          $t \gets t.left$\;
+        }
+      }
+      \Return t\;
+    }
+  \end{algorithm}
+\end{alg}
+
+\begin{alg}[Ricerca Massimo BST]
+  Ricerca del massimo valore chiave in un albero BST. Si ricordi che per le
+  propriet\`a degli alberi di ricerca, il valore massimo sar\`a quello pi\`u a destra.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{max}{max}
+    \SetKwProg{proc}{begin}{ $\rightarrow$ \KwSty{BFS}}{end}
+
+    \proc{\max{\KwSty{BFS} t}}{
+      \While{t $\neq$ null \KwAnd t.right $\neq$ null}{
+        $t \gets t.right$\;
+      }
+      \Return t\;
+    }
+  \end{algorithm}
+\end{alg}
+
+\begin{alg}[Ricerca Minimo BST]
+  Ricerca del minimo valore chiave in un albero BST. Si ricordi che per le
+  propriet\`a degli alberi di ricerca, il valore massimo sar\`a quello pi\`u a sinistra.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{min}{min}
+    \SetKwProg{proc}{begin}{ $\rightarrow$ \KwSty{BFS}}{end}
+
+    \proc{\min{\KwSty{BFS} t}}{
+      \While{t $\neq$ null \KwAnd t.left $\neq$ null}{
+        $t \gets t.left$\;
+      }
+      \Return t\;
+    }
+  \end{algorithm}
+\end{alg}
+
+\begin{alg}[Ricerca Successore BST]
+  Algoritmo che trova il successore di un dato nodo sorgente \emph{v}, ossia il
+  nodo con il pi\`u piccolo valore maggiore di \emph{v}. Si hanno due casi:
+  \begin{enumerate}
+    \item \textbf{\emph{v} ha nodo destro}: identifichiamo \emph{successor(v)} come
+      il \emph{min(v)}.
+    \item \textbf{\emph{v} non ha nodo destro}: identifichiamo \emph{successor(v)}
+      un nodo antenato di \emph{v} tale che \emph{v} sia contenuto nel sottoalbero
+      sinistro di tale antenato.
+  \end{enumerate}
+
+  \begin{algorithm}[H]
+    \SetKwFunction{successor}{successor}
+    \SetKwFunction{min}{min}
+    \SetKwProg{proc}{begin}{ $\rightarrow$ \KwSty{BFS}}{end}
+
+    \proc{\successor{\KwSty{BFS} t}}{
+      \uIf{t = null}{
+        \Return null\;
+      }
+      \uElseIf{t.right $\neq$ null}{
+        \Return \min{t.right}\;
+      }
+      \Else{
+        \KwSty{BFS} $parent \gets t.parent$\;
+        \tcc{ci si ferma quando si trova un antenato che ha il nodo d'input (o
+          un sottoalbero contenente esso) come nodo di sinistra}
+        \While{parent $\neq$ null \KwAnd parent.left $\neq$ t}{
+          $t \gets p$\;
+          $parent \gets p.parent$\;
+        }
+        \Return parent\;
+      }
+    }
+  \end{algorithm}
+\end{alg}
+
+\begin{alg}[Ricerca Predecessore BST]
+  Algoritmo per la ricerca del predecessore in un BST.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{predecessor}{predecessor}
+    \SetKwFunction{max}{max}
+    \SetKwProg{proc}{begin}{ $\rightarrow$ \KwBFS}{end}
+
+    \proc{\predecessor{\KwBFS t}}{
+      \uIf{t = null}{
+        \Return null\;
+      }
+      \uElseIf{t.left $\neq$ null}{
+        \Return \max{t.left}\;
+      }
+      \Else{
+        \KwBFS $parent \gets t.parent$\;
+        \tcc{ci si ferma quando si trova un antenato che ha il nodo d'input (o
+          un sottoalbero contenente esso) come nodo di destra}
+        \While{parent $\neq$ null \KwAnd parent.right $\neq$ t}{
+          $t \gets p$\;
+          $parent \gets p.parent$\;
+        }
+        \Return parent\;
+      }
+    }
+  \end{algorithm}
+\end{alg}
+
+\begin{alg}[Inserimento BST]
+  Algoritmo per l'inserimento di un valore in un Binary Search Tree.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{insert}{insert}
+    \SetKwProg{proc}{begin}{ $\rightarrow$ \KwBFS}{end}
+
+    \proc{\insert{\KwBFS t, \KwBFS item}}{
+      \uIf{t = null}{
+        \Return item\;
+      }
+      \uElseIf{t.key $>$ key}{
+        $t.left \gets \insert{t.left, item}$\;
+      }
+      \Else{
+        $t.right \gets \insert{t.right, item}$\;
+      }
+      \Return t\;
+    }
+  \end{algorithm}
+  \begin{quote}
+    \normalfont
+    NOTA: il valore inserito \emph{item} e' si di tipo \textbf{BFS}, tuttavia dev'essere
+    un singolo nodo foglia, non puo' contenere altro che una chiave e un dato associato.
+  \end{quote}
+\end{alg}
+
+\pagebreak
+
+% TODO: remove
+
+\begin{alg}[Selection Sort]
+  Ordina un array scambiando ad ogni passo $i$ l'elemento di minimo valore in
+  $i..n$ con quello in posiione posizione $i$.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{ss}{selection\_sort}
+
+    \voidproc{\ss{\KwSty{T[1..n]} v}}{
+      \For{$i \gets 1$ \KwTo n}{
+        \tcc{come prima cosa trovo il minimo}
+        $m \gets i$\;
+        \For{$j \gets m+1$ \KwTo n}{
+          \If{$v[j] < v[m]$}{
+            $m \gets j$\;
+          }
+        }
+        \tcc{successivamente, se necessario, scambio i due elementi}
+        \If{$m \neq i$}{
+          $tmp \gets v[m]$\;
+          $v[m] \gets v[i]$\;
+          $v[i] \gets tmp$\;
+        }
+      }
+    }
+  \end{algorithm}
+  \begin{quote}
+    Costo complessivo $\Theta(n^2)$.
+  \end{quote}
+\end{alg}
+
+\begin{alg}[Insertion Sort]
+  Esegue $n$ passi per ordinare l'array, garantendo che al passo $2 \leq k \leq n$
+  i primi $1..k$ elementi saranno ordinati. Ad ogni $k$-esimo passo sposta dunque
+  l'elemento in posizione $k$ nel luogo giusto all'interno di $1..k-1$.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{is}{insertion\_sort}
+
+    \voidproc{\is{\KwSty{T[1..n]} v}}{
+      \For{$i \gets 2$ \KwTo n}{
+        \tcc{troviamo la giusta posizione in cui piazzare $v[i]$ tra $1..i-1$}
+        $j \gets 1$\;
+        \For{j \KwTo i-1}{
+          \If{$v[j] > v[i]$}{
+            \Break
+          }
+        }
+        \tcc{spostiamo $v[j..i-1]$ in $v[j+1...i]$}
+        \For{$t \gets i$ \KwBack j}{
+          $v[t] \gets v[t-1]$\;
+        }
+        $v[j] \gets v[i]$\;
+      }
+    }
+  \end{algorithm}
+  \begin{quote}
+    Costo complessivo $\Theta(n^2)$.
+  \end{quote}
+\end{alg}
+
+\begin{alg}[Bubble Sort]
+  Esegue $n$ cicli, ad ogni ciclo sposta $n$ volte le coppie di elementi affinche'
+  siano ordinate. In questo modo, dopo il primo ciclo avremo che l'ultimo elemento
+  e' il massimo, dopo il secondo ciclo che il penultimo elemento e' il secondo massimo,
+  e cos\`i via.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{bs}{bubble\_sort}
+
+    \voidproc{\bs{\KwSty{T[1..n]} v}}{
+      \For{$i \gets 1$ \KwTo n}{
+        $changed \gets false$\;
+        \For{$j \gets 1$ \KwTo $n-i$}{
+          \tcc{se v[j] \`e maggiore del suo successore, scambiali}
+          \If{$v[j] > v[j+1]$}{
+            $tmp \gets v[j+1]$\;
+            $v[j+1] \gets v[j]$\;
+            $v[j] \gets tmp$\;
+            $changed \gets true$\;
+          }
+        }
+        \If{\KwNot changed}{
+          \Break
+        }
+      }
+    }
+  \end{algorithm}
+  \begin{quote}
+    Costo complessivo nel caso pessimo $\Theta(n^2)$, ma nel caso ottimo, in cui
+    l'array \`e gi\`a ordinato, ha costo $\Theta(n)$.
+  \end{quote}
+\end{alg}
+
+\pagebreak
+
+\begin{alg}[Quick Sort]
+  Il QuickSort e' un algoritmo di sorting con un input leggermente divers. Prende
+  infatti un array $v[1..n]$ e due indici $i$ ed $f$ tali che $1 \leq i < f \leq n$.
+  Essneod il Quicksort un algoritmo \textbf{divide-et-impera}, si hanno due fasi:
+  \begin{enumerate}
+    \item \textbf{divide}: scegliamo un elemento dell'array chiamato \textbf{pivot},
+      tra $i$ ed $f$, diciamo in posizione $m$, e dividiamo l'array in due
+      sottoarray $v[i..m-1]$ e $v[m+1..f]$ tali per cui:
+      \begin{align*}
+        \forall j \in \{i, \ldots, m-1\}. &\; v[j] \leq v[m] \\
+        \forall k \in \{m+1, \ldots, f\}. &\; v[k] > v[m]
+      \end{align*}
+    \item \textbf{impera}: ordina i due sottoarray chiamando ricorsivamente
+      l'algoritmo QuickSort.
+  \end{enumerate}
+
+  \begin{algorithm}[H]
+    \SetKwFunction{partition}{partition}
+
+    \voidproc{\partition{\KwSty{T[1..n]} v, \KwSty{int} i, \KwSty{int} f}}{
+      \tcc{scelta deterministica del pivot $x$}
+      $x \gets v[i]$\;
+      $inf \gets i+1$\;
+      $sup \gets f$\;
+      \While{true}{
+        \While{$inf \leq f$ \KwAnd $v[inf] \leq x$}{
+          $inf \gets inf + 1$\;
+        }
+        \While{$v[sup] > x$}{
+          $sup \gets sup - 1$\;
+        }
+        \tcc{a questo punto abbiamo trovato due elementi da scambiare}
+        \uIf{$inf < sup$}{
+          $tmp \gets v[sup]$\;
+          $v[sup] \gets v[inf]$\;
+          $v[inf] \gets tmp$\;
+        }
+        \Else{
+          \Break
+        }
+      }
+      \tcc{spostiamo l'array in posizione $sup$ e restituiamo la nuova posizione
+      del pivot}
+      $tmp \gets v[sup]$\;
+      $v[sup] \gets v[i]$\;
+      $v[i] \gets tmp$\;
+      \Return{sup}\;
+    }
+  \end{algorithm}
+
+  \begin{algorithm}[H]
+    \SetKwFunction{qs}{quick\_sort}
+    \SetKwFunction{qsr}{quick\_sort\_rec}
+    \SetKwFunction{partition}{partition}
+
+    \voidproc{\qs{\KwSty{T[1..n]} v}}{
+      \qsr{v, 1, n}
+    }
+    \;
+    \voidproc{\qsr{\KwSty{T[1..n]} v, \KwSty{int} i, \KwSty{int} f}}{
+      \If{$i \geq f$}{
+        \Return
+      }
+      $m \gets$ \partition{v, i, f}\;
+      \qsr{v, i, m-1}\;
+      \qsr{v, m+1, f}\;
+    }
+  \end{algorithm}
+  \begin{quote}
+    L'algoritmo ha costo $\Theta(n)$ nel caso pessimo, che si verifica con la scelta
+    di un \textbf{pivot tale che sia massimo} del vettore.
+    Tuttavia nel caso ottimo si ha costo $\Theta(n \log_2 n)$ dal master theorem,
+    cos\`i come si pu\`o povare che nel \textbf{caso medio} si ha costo $O(n \log_2 n)$.
+
+    Si noti che con questo specifico algoritmo di partizione \`e failce trovare
+    istanze in input che portano al caso pesismo (i.e. massimo come primo valore),
+    per cui possiamo dunque rendere la scelta del pivot pseudo-casuale onde
+    evitare tale problema.
+  \end{quote}
+\end{alg}
+
+\begin{alg}[Merge Sort]
+  Il MergeSort e' un algoritmo divide et impera che richiede tempo pseudo-lineare
+  per compiere il suo scopo. Come tipico \`e diviso in due parti:
+  \begin{enumerate}
+    \item \textbf{divide}: si divide a met\`a l'array in input, senza modificarlo in alcun modo
+    \item \textbf{impera}: si chiama ricorsivamente MergeSort sui sottoarray per
+      ordinarli, e poi vengono riuniti nell'array finale nell'ordine corretto
+      (si guardano la testa e la coda).
+  \end{enumerate}
+
+  \begin{algorithm}[H]
+    \SetKwFunction{ms}{merge\_sort}
+    \SetKwFunction{msr}{merge\_sort\_rec}
+    \SetKwFunction{merge}{merge}
+
+    \voidproc{\ms{\KwSty{T[1..n]} v}}{
+      \ms{v, 1, n}
+    }
+    \;
+    \voidproc{\msr{\KwSty{T[1..n]} v, \KwSty{int} i, \KwSty{int} f}}{
+      \If{$i \geq f$}{
+        \Return
+      }
+      $m \gets$ integer of $\frac{f-i}{2}$\;
+      \msr{v, i, m}\;
+      \msr{v, m+1, f}\;
+      \merge{v, i, m, f}\;
+    }
+  \end{algorithm}
+  \begin{algorithm}[H]
+    \SetKwFunction{merge}{merge}
+
+    \voidproc{\merge{\KwSty{T[1..n]} v, \KwSty{int} i, \KwSty{int} m, \KwSty{int} f}}{
+      \tcc{copiamo i due sottoarray}
+      $l \gets v[1..m-i]$\;
+      $r \gets v[1..f-m+1]$\;
+      \tcc{facciamo l'unione di essi}
+      $a, b \gets 1$\;
+      $k \gets i$\;
+      \While{$a < m-i \wedge b < f-m+1$}{
+        \uIf{$l[a] \leq r[b]$}{
+          $v[k] \gets l[a]$\;
+          $a \gets a + 1$\;
+        }
+        \Else{
+          $v[k] \gets r[b]$\;
+          $b \gets b + 1$\;
+        }
+        $k \gets k + 1$\;
+      }
+      \tcc{copiamo qualunque elemento sia rimasto in $l$ o $r$}
+      \While{$a < m-1$}{
+        $v[k] \gets l[a]$\;
+        $a \gets a + 1$\;
+        $k \gets k + 1$\;
+      }
+      \While{$b < m-1$}{
+        $v[k] \gets l[b]$\;
+        $b \gets b + 1$\;
+        $k \gets k + 1$\;
+      }
+    }
+  \end{algorithm}
+  \begin{quote}
+    Per il master theorem e' possibile verificare che il MergeSort ha costo
+    $O(n \log_2 n)$ in ogni casistica.
+  \end{quote}
+\end{alg}
+
+\begin{alg}[Heap Sort]
+  L'HeapSort sfrutta la struttura Heap (costruita direttamente sull'array di partenza)
+  per ordinare gli elementi. Vediamo l'algoritmo e le sue funzioni ausiliarie:
+
+  \begin{algorithm}[H]
+    \SetKwFunction{hs}{heap\_sort}
+    \SetKwFunction{heapify}{heapify}
+    \SetKwFunction{find}{find\_max}
+    \SetKwFunction{del}{delete\_max}
+
+    \voidproc{\hs{\KwSty{T[1..n]} v}}{
+      \heapify{v, n, 1}\;
+      \For{$i \gets n$ \KwBack 1}{
+        $max \gets$ \find{v}\;
+        \del{v, i}\;
+        $v[i] \gets max$\;
+      }
+    }
+  \end{algorithm}
+
+  \begin{algorithm}[H]
+    \SetKwFunction{heapify}{heapify}
+    \SetKwFunction{fix}{fix\_heap}
+    \SetKwFunction{find}{find\_max}
+    \SetKwFunction{del}{delete\_max}
+    \SetKwProg{proc}{begin}{ $\rightarrow$ \KwSty{T}}{end}
+
+    \voidproc{\heapify{\KwSty{T[1..n]} v, \KwSty{int} len, \KwSty{int} i}}{
+      \If{$i > len$}{
+        \Return
+      }
+      \heapify{v, len, $i\cdot2$}\;
+      \heapify{v, len, $i\cdot2$ + 1}\;
+      \fix{v, len, i}
+    }
+    \;
+    \voidproc{\fix{\KwSty{T[1..n]} v, \KwSty{int} len, \KwSty{int} i}}{
+      \tcc{finiamo se l'heap radicato in $i$ non pu\`o avere figli}
+      \If{$i\cdot2 > len$}{
+        \Return
+      }
+      \tcc{lo scopo di questo algoritmo e' di spostare $v[i]$ che \`e la radice
+      di un sottoheap nella sua foglia destra o sinistra in caso esse esistano
+      e non rispettino le proprieta' dei max-heap}
+      $max \gets i*2$\;
+      \If{$i\cdot2 \leq len \wedge v[i\cdot2+1] < v[i\cdot2+1]$}{
+        $max \gets i\cdot2+1$
+      }
+      \tcc{dopo aver trovato il massimo tra i figli di destra e sinistra, sostituiamo
+      se necessario e controlliamo che l'albero in cui abbiamo sostituito sia corretto (chiamata ricorsiva)}
+      \If{$v[i] < s[max]$}{
+        $tmp \gets v[i]$\;
+        $v[i] \gets v[max]$\;
+        $v[max] \gets tmp$\;
+        \fix{v, len, max}
+      }
+    }
+    \;
+    \proc{\find{\KwSty{T[1..n]} v}}{
+      \Return v[1]
+    }
+    \;
+    \voidproc{\del{\KwSty{T[1..n]} v, \KwSty{int} len}}{
+      \tcc{rimpiazzo il valore massimo (la radice dell'heap) con l'ultimo valore
+      e poi chiamo \fix per sistemare la struttura dati}
+      $v[1] \gets v[len]$\;
+      \fix{v, len, 1}\;
+    }
+  \end{algorithm}
+  \begin{quote}
+    La funzione \textbf{heap\_sort} chiama \textbf{heapify} che ha costo $O(n)$ e
+    poi ha un loop con $n$ iterazioni e chiamate a \textbf{find\_max} e \textbf{delete\_max}
+    dal costo $O(\log_2 n)$, dando un costo complessivo:
+    $O(n + O(n \cdot \log_2 n) = O(n \log_2 n)$.
+  \end{quote}
+\end{alg}
+
+\pagebreak
+
+\begin{alg}[Counting Sort]
+  Il CountingSort \`e il primo degli algoritmi di sorting \textbf{non} basato su
+  confronti, poich\`e opera su insiemi ristretti: deve infatti ricevere in input
+  un array di valori $v[1..n]$ tali che i valori $\forall j \in \{1,\ldots,n\}.
+  \; v[j] \in \{0,\ldots,k\}$.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{cs}{counting\_sort}
+    \voidproc{\cs{\KwSty{T[1..n]} v, \KwSty{int} k}}{
+      $c \gets {0...0}$ k times\;
+      \For{$i \gets 1$ \KwTo $n$}{
+        $c[i] \gets c[i] + 1$\;
+      }
+      $pos \gets 1$\;
+      \For{$i \gets 1$ \KwTo $k$}{
+        \While{$c[i] > 0$}{
+          $v[pos] \gets i$\;
+          $c[i] \gets c[i] - 1$\;
+          $pos \gets pos + 1$\;
+        }
+      }
+    }
+  \end{algorithm}
+  \begin{quote}
+    Ha costo $O(n + k)$ ma nel caso in cui $k = \Theta(n)$ si ha costo lineare $O(n)$.
+  \end{quote}
+\end{alg}
+
+\begin{alg}[Buket Sort]
+  Il BucketSort ha un'idea simile al CountingSort tuttavia ci consente di
+  ordinare anche array di strutture complesse, a patto che esse contengano una
+  chiave con cui indicizzarle e tale chiave sia compresa in un intervallo $[1..k]$.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{bs}{bucket\_sort}
+
+    \voidproc{\bs{\KwSty{T[1..n]} v, \KwSty{int} k}}{
+      $c \gets {empty\_list...empty\_list}$ k times\;
+      \For{$i \gets 1$ \KwTo $n$}{
+        \tcc{appendi $v[i]$ alla lista in $c[v[i].key]$}
+        \tcc{con $c \gets ...$ indichiamo l'operazione appendi}
+        $c[v[i].key] \gets v[i]$\;
+      }
+      \tcc{reinseriamo i valori delle liste in $c$ in $v$}
+      $pos \gets 1$\;
+      \For{$i \gets 1$ \KwTo $k$}{
+        \While{$c[i]$ is \KwNot empty}{
+          \tcc{si sottoinende che l'operazione di estrazione dalla lista $\gets c$
+          rimuova anche l'elemento dalla lista}
+          $v[pos] \gets c[i]$\;
+          $pos \gets pos + 1$\;
+        }
+      }
+    }
+  \end{algorithm}
+  \begin{quote}
+    Ha costo $O(n + k)$ ma si nota che nel caso in cui $n \log_2 n < n + k$ l'algoritmo
+    non risulta conveniente rispetto ai sorting pseudo-lineari.
+  \end{quote}
+\end{alg}
+
+\pagebreak
+
+\begin{alg}[Selezione dek $k$-esimo]
+  Supponiamo di voler selezionare il $k$-esimo minimo in un array, senza dunque
+  la necessit\`a di ordinarlo interamente. Possiamo usare una sorta di
+  SelectionSort accorciato, dove svolgiamo solo i primi $k$ passi in modo da
+  avere i primi $k$ elemento ordinati e restituiamo $v[k]$.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{kselect}{kselect}
+    \SetKwFunction{swap}{swap}
+
+    \voidproc{\kselect{\KwSty{T[1..n]} v, \KwSty{int} k}}{
+      \For{$i \gets 1$ \KwTo $k$}{
+        $min \gets i$\;
+        \For{$j \gets i+1$ \KwTo n}{
+          \If{$v[j] < v[min]$}{
+            $min \gets j$\;
+          }
+        }
+        \If{$min \neq i$}{
+          \swap{v, min, i}
+        }
+      }
+      \Return v[k]
+    }
+  \end{algorithm}
+  \begin{quote}
+    L'algoritmo ha chiaramente costo $O(kn)$.
+  \end{quote}
+\end{alg}
+
+\begin{alg}[Selezione dek $k$-esimo (heapsort)]
+  Posso costruire una versione alternativa per valori di $k$ bassi utilizzando
+  un HeapSort accorciato.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{hs}{heap\_select}
+    \SetKwFunction{heapify}{heapify}
+    \SetKwFunction{del}{delete\_min}
+    \SetKwFunction{find}{find\_min}
+
+    \voidproc{\hs{\KwSty{T[1..n]} v, \KwSty{int} k}}{
+      \heapify{v, k, i}\;
+      \For{$i \gets 1$ \KwTo $k-1$}{
+        \del{v, k-i}
+      }
+      \Return \find{v}
+    }
+  \end{algorithm}
+  \begin{quote}
+    Otteniamo dunque un costo complessivo di $O(n + k\log_2n)$, dove $O(n)$ \`e
+    dato da \textbf{heapify} e $O(k \log_2 n)$ \`e dato dal ciclo e \textbf{delete\_min}.
+  \end{quote}
+\end{alg}
+
+\begin{alg}[Selezione dek $k$-esimo (QuickSort)]
+  Possiamo ancora adattare l'approccio divide-et-impera del QuickSort per il
+  problema della selezione del $k$-esimo. Sfrutteremo la funzione \textbf{parition}
+  usata nel problema della bandiera nazionale, in modo da avere tre sottoinsiemi
+  (valori minori del pivot, valori uguali al pivot, valori maggiori del pivot).
+  Poi essendo una selezione analizzeremo solo uno dei tre sottoinsiemi con la
+  chiamata ricorsiva.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{qs}{quick\_select}
+
+    \voidproc{\qs{\KwSty{T[1..n]} v, \KwSty{int} k}}{
+      \tcc{si sceglie il pivot in modo arbitrario}
+      $pivot \gets v[1]$\;
+      $v_1 \gets \{ x \in v \mid x < pivot \}$\;
+      $v_2 \gets \{ x \in v \mid x = pivot \}$\;
+      $v_3 \gets \{ x \in v \mid x > pivot \}$\;
+      \uIf{$k \leq |v_1|$}{
+        \Return \qs{$v_1$, k}
+      }
+      \uElseIf{$k \leq |v_1|+|v_2|$}{
+        \Return pivot
+      }
+      \Else{
+        \Return \qs{$v_3$, $k - |v_1| - |v_2|$}
+      }
+    }
+  \end{algorithm}
+  \begin{quote}
+    Nel caso peggiore l'algoritmo mantiene costo $O(n^2)$ come QuickSort, tuttavia
+    nel caso migliore e medio si ha costo $O(n)$ (si pu\`o provare che $T_{mid}(n) \leq 4n$)
+  \end{quote}
+\end{alg}
+
+\pagebreak
+
+\begin{alg}[Sottovettore massimo]
+  Rivediamo in programmazione dinamica il problema del sottovettore massimo, che
+  essendo un problema di ottimizzazione dove bisogna controllare pi\`u volte gli
+  stessi sottovettori si presta all'applicazione della tecnica di programmazione
+  dinamica. \\
+  L'idea \`e quella di risolvere i sottoproblemi $S[i]$ che ci danno il valore
+  della migliore somma di un sottovettore di $v[1..i]$ che contenga $v[i]$ come
+  ultimo elemento. Possiamo poi combinare le soluzioni ottenute dai
+  sottoproblemi precedenti per trovare la soluzione finale.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{ms}{max\_subset}
+    \SetKwFunction{msi}{max\_subset\_start}
+    \SetKwProg{proc}{begin}{ $\rightarrow$ \KwSty{int}}{end}
+
+    \proc{\ms{\KwSty{int[1..n]} v}}{
+      $best \gets 1$\;
+      $results[1..n]$\;
+      $results[1] \gets v[1]$\;
+      \For{$i \gets 2$ \KwTo $n$}{
+        \uIf{$results[i-1] + v[i] < v[i]$}{
+          $results[i] \gets v[i]$
+        }
+        \Else{
+          $results[i] \gets results[i-1] + v[i]$
+        }
+        \;
+        \If{$results[best] < results[i]$}{
+          $best \gets i$\;
+        }
+      }
+      \Return $results[best]$
+    }
+    \;
+    \proc{\msi{\KwSty{int[1..n]} v, \KwSty{int[1..n]} results, \KwSty{int} best}}{
+      $i \gets best$\;
+      \While{$results[i] \neq v[i]$}{
+        $i \gets i - 1$\;
+      }
+      \Return $i$
+    }
+  \end{algorithm}
+  \begin{quote}
+    L'algoritmo ha costo $O(n)$, migliore rispetto alla versione divide-et-impera.
+    Oltretutto abbiamo un algoritmo per trovare gli indici di inizio e fine
+    dell'sottoarray scelto.
+  \end{quote}
+\end{alg}
+
+\pagebreak
+
+\begin{alg}[DFS su grafi]
+  La DFS sui grafi \`e molto simile ad una DFS su alberi, tuttavia con i grafi
+  bisogna tenere traccia di quali nodi sono stati \textbf{non visitati}(bianco),
+  \textbf{aperti}(grigio) o \textbf{visitati}(nero). Terremo oltretutto traccia
+  dell'ordine in cui i nodi vengono visitati in modo da poter costuire una
+  \textbf{foresta DF} che indica i nodi visitati nel rispettivo ordine.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{dfs}{DFS}
+    \SetKwFunction{dfsv}{DFS\_visit}
+    \SetKwFunction{visit}{visit}
+
+    \KwSty{global} $time \gets 0$\;
+    \voidproc{\dfs{\KwSty{Graph} (V, E), \KwSty{fn} \visit}}{
+      \For{$v$ \KwSty{in} $V$}{
+        $v.mark \gets white$\;
+        $v.parent \gets null$\;
+      }
+      \For{$v$ \KwSty{in} $V$}{
+        \If{$v.marked = white$}{
+          \dfsv{v}\;
+        }
+      }
+    }
+    \;
+    \voidproc{\dfsv{\KwSty{Vertex} v, \KwSty{fn} \visit}}{
+      $v.mark \gets gray$\;
+      $time \gets time + 1$\;
+      $v.dt \gets time$\;
+      \For{$u$ \textbf{adjacent to} $v$}{
+        \If{$u.marked = white$}{
+          $u.parent \gets v$\;
+          \dfsv{u, \visit};
+        }
+      }
+      \tcc{Questa chiamata pu\`o essere posta prima del loop per ottenere una
+      visita DFS in \emph{pre-ordine}}
+      \visit{v}\;
+      $time \gets time + 1$\;
+      $v.ft \gets time$\;
+      $v.mrak \gets black$\;
+    }
+  \end{algorithm}
+\end{alg}
+
+\begin{alg}[BFS su grafi]
+  La BFS sui grafi \`e molto simile alla sua contropare sugli alberi, ma anche
+  in questo caso bisogna tenere traccia dei vertigi gi\`a visitati. Oltretutto
+  utilizzeremo una struttura arobrescente $T$ per costruire un \textbf{Albero
+  di visita} che traccia archi e vertici percorsi durante la visita.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{bfs}{BFS}
+    \SetKwFunction{visit}{visit}
+    \SetKwProg{proc}{begin}{ $\rightarrow$ \KwTree}{end}
+    \proc{\bfs{\KwSty{Graph} (V, E), \KwSty{Vertex} s, \KwSty{fn} \visit}}{
+      \For{$v$ \KwSty{in} $V$}{
+        $v.mark \gets false$\;
+      }
+      \KwTree $tree \gets s$\;
+      \KwQueue $queue \gets s$\;
+      $s.dist \gets 0$\;
+      $s.mark \gets true$\;
+      \While{$queue$ is \KwNot empty}{
+        $v \gets queue$\;
+        \visit{v}\;
+        \For{$u$ adjacent to $v$}{
+          \If{$u.marked = false$}{
+            $u.dist \gets v.dist + 1$\;
+            $u.mark \gets true$\;
+            $u.parent \gets v$\;
+            $queue \gets u$\;
+          }
+        }
+      }
+      \Return tree
+    }
+  \end{algorithm}
+\end{alg}
+
+\begin{alg}[MST: Kruscal]
+  Descriviamo l'algoritmo di Kruscal per produrre un Minimum Spanning Tree di
+  un dato grafo. L'idea \`e semplice: Inseriamo ogni vertice in un albero, poi
+  ordiniamo in modo non decrescente di peso gli archi, analizzandone uno a uno
+  e comportandoci nel seguente modo:
+  \begin{enumerate}
+    \item se l'arco forma un ciclo (possiamo vederlo confrontando l'identificatore
+      dei due vertici nella UnionFind) allora non lo inseriamo nella soluzione.
+    \item altrimenti tale arco viene inserito nella soluzione.
+  \end{enumerate}
+
+  \begin{algorithm}[H]
+    \SetKwFunction{kruskal}{kruskal}
+    \SetKwFunction{sort}{sort\_crescente}
+    \SetKwFunction{w}{w}
+    \SetKwProg{proc}{begin}{ $\rightarrow$ \KwTree}{end}
+    \proc{\kruskal{\KwSty{Graph} (V, E, \w)}}{
+      \KwSty{UnionFind} uf\;
+      \KwTree tree\;
+      \For{$v$ \KwSty{in} $V$}{
+        uf.make\_set(v)\;
+      }
+      \sort{E, \w}\;
+      \For{$(u, v)$ \KwSty{in} $E$}{
+        $T_u \gets uf.find(u)$\;
+        $T_v \gets uf.find(v)$\;
+        \If{$T_u \neq T_v$}{
+          $tree \gets tree \cup (u, v)$\;
+          $uf.union(T_u, T_v)$\;
+        }
+      }
+      \Return tree\;
+    }
+  \end{algorithm}
+  \begin{quote}
+    L'algoritmo ha costo $O(m \log_2 n)$, dato dal costo dell'ordinamento che
+    \`e pari a $O(m \log_2 m) = O(m \log_2 n)$ e dal costo delle chiamate a union find.
+    Poich\`e prevalgono le chiamate a \textbf{union} useremo la struttura QuickFind
+    con euristica sul rango, ottenendo un costo $O(m + 2m \log_2 n + n) = O(m \log_2 n)$.
+    Le precedenti equivalenze valgono poich\`e in un grafo connesso si ha sempre
+    $m \geq n-1$.
+  \end{quote}
+\end{alg}
+
+\begin{alg}[MST: Prim]
+  Descriviamo l'algoritmo di Prim per produrre un Minimum Spanning Tree di
+  un dato grafo. L'idea \`e la seguente: partire da un vertice sorgente qualsiasi,
+  tenere tracia dei nodi raggiungibili e con quali costi, aggiornando i costi mentre
+  troviamo nodi pi\`u vantaggiosi e mantenendo la frontiera in una coda con priorit\`a.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{prim}{prim}
+    \SetKwFunction{w}{w}
+    \SetKwProg{proc}{begin}{ $\rightarrow$ \KwTree}{end}
+    \proc{\prim{\KwSty{Graph} (V, E, \w), \KwSty{Vertex} s}}{
+      $d[1..n] \gets \{+\infty, \ldots, +\infty\}$'\;
+      $b[1..n] \gets \{false, \ldots, false\}$'\;
+      $p[1..n]$ \tcc{array di padri di ogni nodo nell'MST finale}
+      \KwSty{PriorityQueue} q\;
+      $d[s] \gets 0$\;
+      $q.insert(s, d[s])$\;
+      \While{$q$ is \KwNot empty}{
+        $v \gets q$ \tcc{find e delete\_min}
+        $b[v] \gets true$\;
+        \For{$u$ adjacent to $v$ \KwNot $b[u]$}{
+          \uIf{$d[u] = +\infty$}{
+            $q.insert(u, w(v,u))$\;
+            $d[u] \gets w(v, u)$\;
+            $p[u] \gets v$\;
+          }
+          \ElseIf{$d[u] > w(v,u)$}{
+            $q.decrease\_key(u, d[u] - w(v,u))$\;
+            $d[u] \gets w(v, u)$\;
+            $p[u] \gets v$\;
+          }
+        }
+      }
+      \Return p
+    }
+  \end{algorithm}
+  \begin{quote}
+    L'algoritmo fa $n$ chiamate di \textbf{delete\_min} che hanno costo $O(n \log_2 n$),
+    $n$ chiamate di \textbf{insert} con costo $O(n \log_2 n)$ e  $m$ chiamate di
+    \textbf{decrease\_key} che hanno costo $O(m \log_2 n)$. Il totale ammonta a
+    $O(n \log_2 n + n \log_2 n + m \log_2 n)$ e poich\`e $m \geq n-1$ si ha come
+    costo complessivo: $O(m \log_2 n)$.
+  \end{quote}
+\end{alg}
+
+\pagebreak
+
+\begin{alg}[Cammini minimi: Bellman-Ford]
+  Un cammino \`e un percorso $\pi = (v_0, v_1, \ldots, v_k)$ che va dalla sorgente $v_0$
+  al nodo destinazione $v_k$. Un cammino si dice minimo se il valore della sommatoria
+  \begin{align*}
+    \sum_{i=1}^k w(v_{i-1}, v_i)
+  \end{align*}
+  \`e il minimo tra tutti i cammini esistenti nel grafo. L'algoritmo di Bellman-Ford
+  risolve il problea della ricerca di un cammino minimo da un nodo $s$ a tutti
+  gli altri nodi del grafo.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{bf}{bellman\_ford}
+    \SetKwFunction{w}{w}
+    \SetKwProg{proc}{begin}{ $\rightarrow$ \KwTree}{end}
+    \proc{\bf{\KwSty{Graph} (V, E, \w), \KwSty{Vertex} s}}{
+      $n \gets$ number of vertices in $V$\;
+      \KwSty{int} $pred[1..n]$\;
+      \KwSty{double} $D[1..n]$\;
+      \For{$v$ \KwSty{in} $V$}{
+        $D[v] \gets \infty$\;
+        $pred[v] \gets -1$\;
+      }
+      $D[s] \gets 0$\;
+      \Repeat{n--}{
+        \For{$(u, v)$ \KwSty{in} $E$}{
+          \If{$D[v] > D[u] + w(u, v)$}{
+            $D[v] \gets D[u] + w(u, v)$\;
+            $pred[v] \gets u$\;
+          }
+        }
+      }
+      \tcc{controllo per cicli negativi}
+    }
+  \end{algorithm}
+  \begin{quote}
+    Il costo dell'algoritmo \`e determinato dal secondo ciclo, che ha chiaramente
+    costo $O(nm)$.
+  \end{quote}
+  L'idea del controllo per i cili negativi \`e semplice. Se esistono cicli negativi
+  allora possiamo ancora trovare un cammino conveniente anche dopo aver completato
+  Bellman-Ford, che tuttavia avrebbe gi\`a dovuto trovare tutti i cammini migliori.
+  Possiamo sfruttare questo semplice pseudocodice:
+
+  \begin{algorithm}[H]
+    \For{$(u, v)$ \KwSty{in} $E$}{
+      \If{$D[v] > D[u] + w(u, v)$}{
+        \KwSty{throw error} cicli negativi\;
+      }
+    }
+  \end{algorithm}
+\end{alg}
+
+\begin{alg}[cammini minimi: Dijkstra (uguale a Prim)]
+  L'algoritmo di Dijkstra \`e estremamente simile a Prim (attenzione al calcolo
+  della distanza dei nodi dalla sorgente $s$), tuttavia ci consente di trovare
+  in modo ottimale cammini minimi in grafi \textbf{senza archi di peso negativo}.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{dijkstra}{dijkstra}
+    \SetKwFunction{w}{w}
+    \SetKwProg{proc}{begin}{ $\rightarrow$ \KwTree}{end}
+    \proc{\dijkstra{\KwSty{Graph} (V, E, \w), \KwSty{Vertex} s}}{
+      \KwSty{double} $d[1..n] \gets \{+\infty, \ldots, +\infty\}$'\;
+      \KwSty{int} $p[1..n]$ \tcc{array del percorso del cammino $v \rightarrow
+      u \Rightarrow p[u] = v$}
+      \KwSty{PriorityQueue} q\;
+      $d[s] \gets 0$\;
+      $q.insert(s, d[s])$\;
+      \While{$q$ is \KwNot empty}{
+        $v \gets q$ \tcc{find e delete\_min}
+        \For{$u$ adjacent to $v$}{
+          \uIf{$d[u] = +\infty$}{
+            $q.insert(u, d[u] + w(v,u))$\;
+            $d[u] \gets d[u] + w(v,u)$\;
+            $p[u] \gets v$\;
+          }
+          \ElseIf{$d[u] > w(v,u)$}{
+            $q.decrease\_key(u, d[u] - d[v] - w(v,u))$\;
+            $d[u] \gets d[v] + w(v, u)$\;
+            $p[u] \gets v$\;
+          }
+        }
+      }
+      \Return p
+    }
+  \end{algorithm}
+  \begin{quote}
+    Proprio come Prim (cambia solo il calcolo della distanza tra i nodi) questo
+    algoritmo ha costo $O(m \log_2 n)$.
+  \end{quote}
+\end{alg}
+
+\begin{alg}[cammini minimi (all-pair): Floyd-Warshall all-pair]
+  Algoritmo utilizzato per trovare i cammini minimi da una qualunque sorgente ad
+  una qualunque destinazione. Useremo la tecnica della programmazione dinamica e
+  risolveremo i sottoproblemi del tipo: Trovare la distanza minima da $x$ a $y$
+  passando solo per i primi $\{1..k\}$ vertici. Le soluzioni $S_{x,y}^k$ avranno
+  la forma del tipo:
+  \begin{align*}
+    S[x,y,0] &= \begin{cases}
+      0 & \text{se } x = y \\
+      w(x,y) & \text{se } (x,y) \in E \\
+      \infty & \text{se } (x,y) \not\in E
+    \end{cases} \\
+      S[x,y,k>0] &= \min\{S_{x,y}^{k-1}, S_{x,k}^{k-1} + S_{k,y}^{k-1}\}
+  \end{align*}
+  Si noti che la soluzione generale prende il minimo tra le due opzioni che ci si
+  presentano in ogni caso non banale, ossia:
+  \begin{itemize}
+    \item \textbf{non} prendo il nodo $k$: allora la soluzione sar\`a uguale a
+      quella precedente, ovvero $S[x,y,k-1]$.
+    \item prendo il nodo $k$: allora la soluzione sar\`a data dalla soluzione
+      fino a $k$ con $k-1$ nodi, e dalla soluzione da $k$ a $y$ con $k-1$ nodi,
+      ovvero $S[x,k,k-1] + S[k,y,k-1]$.
+  \end{itemize}
+
+  \begin{algorithm}[H]
+    \SetKwFunction{fw}{floyd\_warshall}
+    \SetKwFunction{w}{w}
+    \SetKwProg{proc}{begin}{ $\rightarrow$ \KwTree}{end}
+    \proc{\fw{\KwSty{Graph} (V, E, \w)}}{
+      $n \gets$ amount of vertices in $V$\;
+      \KwSty{double} $S[1..n, 1..n, 0..n]$ \tcc{$S[x,y,k]$}
+      \tcc{riempiamo le soluzioni del tipo $S[x,y,0]$}
+      \For{$x \gets 1$ \KwTo $n$}{
+        \For{$y \gets 1$ \KwTo $n$}{
+          \uIf{$x = y$}{
+            $S[x,y,0] \gets 0$\;
+          }
+          \uElseIf{$(x,y) \in E$}{
+            $S[x,y,0] \gets$ \w(x,y)
+          }
+          \Else{
+            $S[x,y,0] \gets \infty$\;
+          }
+        }
+      }
+      \tcc{calcolo le soluzioni non banali}
+      \For{$k \gets 1$ \KwTo $n$}{
+        \For{$x \gets 1$ \KwTo $n$}{
+          \For{$y \gets 1$ \KwTo $n$}{
+            $S[x,y,k] \gets \min\{S[x,y,k-1], S[x,k,k-1] + S[k,y,k-1]\}$\;
+          }
+        }
+      }
+      \Return $S[1..n,1..n,k]$\;
+    }
+  \end{algorithm}
+  \begin{quote}
+    Vista la necessit\`a di popolare una matrice tridimensionale di dimensione
+    $n$ (cardinalit\`a dei vertici), l'algoritmo avr\a` sicuramente dimensione
+    $O(n^3)$ sia per quanto riguarda il tempo che lo spazio.
+  \end{quote}
+  Si pu\`o ottimizzare sotto il punto di vista dello spazio l'algoritmo notando che
+  l'indicizzazione di $k$ \`e supeflua in quanto ci si rif\a` sempre al valore
+  precedente $k-1$ che viene mantenuto invariato o aggiornato, ma non si ispeziona
+  mai pi\`u indietro di $k-1$ dunque basterebbe una matrice $n \times n$ e applicare
+  i cambiamenti in loco anzi che tenendone traccia al variare di $k$. \\
+  La soluzione seguente contiene anche una matrice di appoggio per poter
+  ricostriure i cammini da un nodo all'altro.
+
+  \begin{algorithm}[H]
+    \SetKwFunction{fw}{floyd\_warshall\_optimized}
+    \SetKwFunction{fwp}{floyd\_warshall\_path}
+    \SetKwFunction{w}{w}
+    \SetKwFunction{print}{print}
+    \SetKwProg{proc}{begin}{ $\rightarrow$ \KwTree}{end}
+    \proc{\fw{\KwSty{Graph} (V, E, \w)}}{
+      \KwSty{int} $n \gets$ amount of vertices in $V$\;
+      \KwSty{double} $S[1..n, 1..n]$\;
+      \KwSty{Vertex} $next[1..n, 1..n]$\;
+      \tcc{riempiamo le soluzioni del tipo $S[x,y,0]$}
+      \For{$x \gets 1$ \KwTo $n$}{
+        \For{$y \gets 1$ \KwTo $n$}{
+          \uIf{$x = y$}{
+            $S[x,y] \gets 0$\;
+            $next[x,y] \gets -1$\;
+          }
+          \uElseIf{$(x,y) \in E$}{
+            $S[x,y] \gets$ \w(x,y)\;
+            $next[x,y] \gets y$\;
+          }
+          \Else{
+            $S[x,y] \gets \infty$\;
+            $next[x,y] \gets -1$\;
+          }
+        }
+      }
+      \tcc{calcolo le soluzioni non banali}
+      \For{$k \gets 1$ \KwTo $n$}{
+        \For{$x \gets 1$ \KwTo $n$}{
+          \For{$y \gets 1$ \KwTo $n$}{
+            \tcc{si noti che il primo valore del minimo $S_{x,y}^{k-1}$ \`e gi\`a in $S[x,y]$}
+            \If{$S[x,k] + S[k,y] < S[x,y]$}{
+              $S[x,y] \gets S[x,k] + S[k,y]$\;
+              $next[x,y] \gets next[x,k]$\;
+            }
+          }
+        }
+      }
+      \Return $S[1..n,1..n,k]$\;
+    }
+    \;
+    \voidproc{\fwp{\KwSty{Vertex[1..n]} next, \KwSty{Vertex} x, \KwSty{Vertex} y}}{
+      \uIf{$x \neq y \wedge next[x,y] < 0$}{
+        errore: non esiste un cammino da $x$ a $y$\;
+      }
+      \Else{
+        \print{x}\;
+        \While{$x \neq y$}{
+          $x \gets next[x,y]$\;
+          \print{x}\;
+        }
+      }
+    }
+  \end{algorithm}
+\end{alg}
+
+\end{document}

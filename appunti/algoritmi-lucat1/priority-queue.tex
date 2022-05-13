@@ -1,0 +1,151 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{enumerate}
+
+\title{\textbf{Code con priorita'}}
+\author{Luca Tagliavini}
+\date{April 8-12, 2021}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\pagebreak
+
+\subsection{Coda con priorita'}
+
+Struttura che mantiene il minimo (o massimo) in un insieme dinamico di chiavi
+su cui e' definita una relazione d'ordine totale. Una coda con priorita' e' un 
+insieme di $n$ elementi di tipo $elem$ cui sono associate chiavi.
+\begin{itemize}
+  \item $k_1 \Rightarrow elem_1$
+  \item $k_2 \Rightarrow elem_2$
+  \item $k_3 \Rightarrow elem_3$
+  \item $\ldots$
+\end{itemize}
+
+Un esempio puo' essere la sincronizzazione della banda dove c'e' un continuo
+scambio di pacchetti tra client e server, e alcuni pacchetti hanno giustamente
+priorita' piu' alta e vengono dunque scambiati prima di altri (i.e. uno stream
+audio del presentatore della lezione vs un messaggio in chat).
+I pacchetti in ingresso possono dunque essere mantenuti in una coda con priorita'
+per gestire prima quelli con priorita' maggiore. Una cosa analoga puo' essere fatta
+lato server dove i pacchetti vengono distribuiti ai vari client.
+
+\subsubsection{Operazioni disponbili}
+
+\begin{itemize}
+  \item \emph{find\_min()} $\rightarrow$ \emph{elem}: restituisce l'elemento associato
+    alla chiave minima.
+  \item \emph{insert(elem e, chiave k)} $\rightarrow$ \emph{void}: inserisce un nuovo
+    elemento $e$ con associata la chiave $k$.
+  \item \emph{delete(elem e)} $\rightarrow$ \emph{void}: rimuove un elemento dalla coda
+    al quale assumiamo di avere si ha accesso diretto.
+  \item \emph{delete\_min()} $\rightarrow$ \emph{void}: rimuove l'elemento associato alla
+    chiave minima.
+  \item \emph{increase\_key(elem e, chiave k)} $\rightarrow$ \emph{void}: aumenta la
+    priorita' dell'elemento $e$ della quantita' $k$.
+  \item \emph{decrease\_key(elem e, chiave k)} $\rightarrow$ \emph{void}: decrementa la
+    chiave dell'elemento $e$ eella quantita' $d$
+\end{itemize}
+
+La struttura ammette metodi e funzionalita' molto simili quindi ci ispireremo
+fortemente alla sua costruzione. Tuttavia applicheremo alcuni cambiamenti:
+\begin{itemize}
+  \item Non avremo piu' un albero binario, ma ogni nodo potra' avere un numero
+    arbitrario di figli fino ad un numero massimo $d$. Chiameremo questa
+    struttura $d$-heap.
+  \item Implementeremo le operazioni \emph{delete, increase\_key, decrease\_key}
+    che non avevamo implementato ai tempi dell'heap sort poiche' non sfruttate.
+\end{itemize}
+
+NOTA: \emph{increase\_key} tornera' utile quando studieremo l'agoritmo di Dijkstra.
+
+\subsection{$d$-heap}
+
+Estende il concetto di min/max-heap gia' visto, con la differenza che un heap
+classico e' binario mentre invece un $d$-heap sara' $d$-ario.
+Ha le seguenti proprieta':
+\begin{itemize}
+  \item Un $d$-heap di $h$ altezza e' un albero perfetto almeno fino alla
+    profondita' $h-1$. Le foglie (nel livello $h$ vengon accatastate a sinistra).
+  \item Ogni nodo $v$ contiene una $chiave(v)$ e un $elem(v)$. L'insieme delle
+    chiavi e' un insieme ordinato (i.e. $1,2,3,\ldots,10$)
+  \item Ogni figlio (diverso dalla radice) ha la chiave \emph{non inferiore}
+    ($\geq$) a quella del padre.
+  \item Un $d$-heap con $n$ nodi ha profondita' $O(\log_d n)$. \\
+    Lo si prova con le serie geometriche come visto per le normali heap, vdi slide.
+\end{itemize}
+
+Anche i $d$-heap possono essere memorizzati tramite un array (index $1-n$), il
+cui processo e' descritto nelle slide e ci offre un accesso diretto agli
+elementi in posizioni arbitrarie in modo da abbassare il costo di alcuni metodi
+(altrimenti logaritmici) a costanti.
+
+\subsubsection{Funzioni ausiliarie: \emph{muovi}\_\emph{basso} }
+
+\begin{lstlisting}
+algorithm muovi_basso(Node v)
+  while true do
+    if has_no_child(v) then
+      break
+    else
+      u := min_child(v)
+      if chiave(u) < chiave(v) then
+        swap(u, v)
+        v = u
+      else
+        break
+    endif
+  endwhile
+endalgoritmh
+\end{lstlisting}
+
+Costo: $O(dh)$
+
+Sposta il nodo $v$ in basso nella heap (tra i suoi figli) fino ad una posizione
+in cui rende l'albero un $d$-heap, ossia posiziona il nodo $v$ scambiandolo con
+un figlio in modo che esso sia il minore tra il sottoalbero preso in considerazione.
+
+\subsubsection{Funzioni ausiliarie: \emph{muovi}\_\emph{alto} }
+
+\begin{lstlisting}
+algorithm muovi_alto(Node v)
+  while v != root(T) and chiave(v) < chiave(parent(v)) do
+    swap(v, parent(v))
+    v = parent(v)
+  endwhile
+endalgoritmh
+\end{lstlisting}
+
+Costo: $O(d)$
+
+Sposta il nodo $v$ in alto fino a quando o esso non e' la radice (ci fermiamo
+perche' la chiamata \emph{parent} fallirebbe) o \textbf{ha una chiave $\geq$ di
+quella del padre}
+
+\subsubsection{Costi degli altri metodi della $d$-heap}
+
+Si noti che $d = \log_d n$ per le proprieta' della $d$-heap.
+
+\begin{itemize}
+  \item \emph{find\_min()} $\Rightarrow$ $O(1)$ in quanto il minimo e' il
+    nodo radice
+  \item \emph{insert(elem e, chiave k)} $\Rightarrow$ $O(\log_d n)$ in quanto
+    aggiunge l'elemento il piu' possibile a destra nell'ultimo livello e necessita
+    di una chiamata di \emph{muovi\_alto}
+  \item \emph{delete(elem e)} $\Rightarrow$ $O(d \log_d n)$ in quanto si scambia
+    la foglia piu' a destra dell'ultimo livello con il nodo scambiato e poi si
+    esegue \emph{muovi\_alto} o \emph{muovi\_basso} in base alla situazione, tra
+    i quali il peggiore ha costo $O(d \log_d n)$
+  \item \emph{delete\_min()} $\Rightarrow$ $O(d \log_d n)$ in quanto chiama \emph{delete}
+  \item \emph{increase\_key(elem e, chiave k)} $\Rightarrow$ $O(\log_d n)$ in
+    quanto aumenta il valore e chiama \emph{muovi\_alto} per riordinare l'albero
+    dopo l'incremento
+  \item \emph{decrease\_key(elem e, chiave k)} $\Rightarrow$ $O(d \log_d n)$ in
+    quanto chiama \emph{muovi\_basso} per ribilanciare la $d$-heap
+\end{itemize}
+
+\end{document}
