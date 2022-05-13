@@ -1,7 +1,7 @@
 name: Deploy all files statically to github pages
 on:
   push:
-    branch: main
+    branches: main
 
 jobs:
   deploy:
