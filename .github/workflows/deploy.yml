@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 1
       
       - name: Recursively compile tex files
-        run: ./.github/workflows/rec "*\.tex$" pdflatex
+        run: ./.github/workflows/rec "*\.tex$" "latemk -pdf"
 
       - name: Recursively compile (doc|ppt)x? files
         run: ./.github/workflows/rec "*\.(doc|ppt)x?$" "libreoffice --headless --convert-to pdf --outdir ."
