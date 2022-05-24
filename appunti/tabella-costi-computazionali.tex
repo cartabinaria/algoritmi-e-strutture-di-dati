@@ -1,0 +1,131 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage[table]{xcolor}
+\title{Tabella costi computazionali}
+\author{Alessandro Frau}
+\date{May 2022}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newline
+\newline
+N.B. Tutti i costi computazionali si riferiscono al caso pessimo.
+\section{Dizionari}
+\begin{table}[H]
+    \centering
+    \rowcolors{2}{gray!10}{gray!40}
+    \def\arraystretch{1.5}
+    \begin{tabular}{|r|c|c|c|} \hline
+          \textbf{Nome} & \textbf{Ricerca} & \textbf{Inserimento} & \textbf{Cancellazione}\\ \hline
+          Vettore ordinato & $O(log(n)$ & $O(n)$ & $O(n)$ \\ \hline
+          Lista non ordinata & $O(n)$ & $O(1)$ & $O(n)$ \\ \hline
+          Albero non bilanciato (ABR) & $O(n)$ & $O(n)$ & $O(n)$ \\ \hline
+          Albero bilanciato (AVR) & $O(log(n))$ & $O(log(n))$ & $O(log(n))$ \\ \hline
+    \end{tabular}
+    \caption{n: numero nodi}
+    \label{tab:my_label}
+\end{table}
+\newpage
+\section{Sorting}
+\begin{table}[H]
+    \centering
+    \rowcolors{2}{gray!10}{gray!40}
+    \def\arraystretch{1.5}
+    \begin{tabular}{|r|c|c|c|} \hline
+          \textbf{Nome} & \textbf{Costo} & \textbf{Stabile} & \textbf{In loco}\\ \hline
+          Insertion sort & $O(n^2)$ & \cellcolor{green}si & \cellcolor{green}si \\ \hline
+          Bubble sort & $O(n^2)$ & \cellcolor{green}si & \cellcolor{green}si \\ \hline
+          Selection sort & $O(n^2)$ & \cellcolor{red}no & \cellcolor{green}si \\ \hline
+          Merge sort & $O(n\cdot log(n)$ & \cellcolor{green}si & \cellcolor{red}no \\ \hline
+          Quick sort & $O(n\cdot log(n)$ & \cellcolor{red}no & \cellcolor{green}si \\ \hline
+          Heap sort & $O(n\cdot log(n)$ & \cellcolor{red}no & \cellcolor{green}si \\ \hline
+          Counting sort & $O(n+k)$ & \cellcolor{green}si & \cellcolor{red}no \\ \hline
+          Bucket sort & $O(n+k)$ & \cellcolor{green}si & \cellcolor{red}no \\ \hline
+          Radix sort & $O(d \cdot (n+b))$ & \cellcolor{green}si & \cellcolor{red}no \\ \hline
+    \end{tabular}
+    \caption{n: numero nodi}
+    \label{tab:my_label}
+\end{table}
+\section{Selezione}
+\begin{table}[H]
+    \centering
+    \rowcolors{2}{gray!10}{gray!40}
+    \def\arraystretch{1.5}
+    \begin{tabular}{|r|c|} \hline
+          \textbf{Nome} & \textbf{Costo} \\ \hline
+          Selection Sort incompleto & $\Theta(K\cdot n)$ \\ \hline
+          Min-heap & $O(n+K\cdot log(n))$ \\ \hline
+          Quick select & $O(n)/\Theta(n^2)$ \\ \hline
+          Mediana delle mediane & $O(n)$ \\ \hline
+    \end{tabular}
+    \caption{n: numero nodi, K: kesimo elemento}
+    \label{tab:my_label}
+\end{table}
+\section{Altre strutture}
+\subsection{Union  Find}
+\begin{table}[H]
+    \centering
+    \rowcolors{2}{gray!10}{gray!40}
+    \def\arraystretch{1.5}
+    \begin{tabular}{|r|c|c|c|} \hline
+          \textbf{Nome} & \textbf{Union} & \textbf{Find} & \textbf{Make set} \\ \hline
+          Quick union & $\Theta(1)$ & $O(n)$ & $\Theta(1)$ \\ \hline
+          Quick find & $O(n)$& $\Theta(1)$ & $\Theta(1)$ \\ \hline
+          Quick union (euristica peso) & $\Theta(1)$ & $O(log(n))$ & $\Theta(1)$ \\ \hline
+          Quick find (euristica rango) & $O(log(n))$ & $\Theta(1)$ & $\Theta(1)$ \\ \hline
+    \end{tabular}
+    \caption{n: numero nodi}
+    \label{tab:my_label}
+\end{table}
+\subsection{Coda con priorita}
+\begin{table}[H]
+    \centering
+    \rowcolors{2}{gray!10}{gray!40}
+    \def\arraystretch{1.5}
+    \begin{tabular}{|r|c|} \hline
+          & \textbf{Coda con priorita'} \\ \hline
+          \textbf{insert} & $O(log(n))$ \\ \hline
+          \textbf{delete} & $O(d\cdot log(n))$ \\ \hline
+          \textbf{Increase Key} & $O(d\cdot log(n))$ \\ \hline
+          \textbf{Decrease key} & $O(log(n))$ \\ \hline
+          \textbf{Find min} & $\Theta(1)$ \\ \hline
+          \textbf{Delete min} & $O(d\cdot log(n))$ \\ \hline
+    \end{tabular}
+    \caption{n: numero nodi}
+    \label{tab:my_label}
+\end{table}
+\section{Grafi}
+\begin{table}[H]
+    \centering
+    \rowcolors{2}{gray!10}{gray!40}
+    \def\arraystretch{1.5}
+    \begin{tabular}{|r|c|} \hline
+         & \textbf{Costo (worst case)} \\ \hline \hline
+         \multicolumn{2}{|c|}{\textbf{Algoritmi di visita}}\\  \hline
+         BFS & $O(n+m)$\\ \hline
+         DFS & $O(n+m)$\\ \hline  \hline
+         \multicolumn{2}{|c|}{\textbf{Minimum Spanning Tree}}\\  \hline
+         Kruskal & $O(m\cdot log(n))$\\ \hline
+         Prim & $O(m\cdot log(n))$\\ \hline  \hline
+         \multicolumn{2}{|c|}{\textbf{Cammini minimi}}\\ \hline
+         Bellman-Ford & $O(n\cdot m)$\\ \hline
+         Dijkstra & $O(m\cdot log(n))$\\ \hline
+         Floyd-Warshall & $O(n^3)$\\ \hline
+    \end{tabular}
+    \caption{n: numero nodi, m: numero archi}
+    \label{tab:my_label}
+\end{table}
+Nei cammini minimi quale algoritmo conviene scegliere? 
+
+\begin{itemize}
+    \item Nel caso in cui \textbf{non si hanno valori negativi}, e si vuole trovare il cammino minimo, da \textbf{un nodo ad uno o piu nodi}, usi dijkstra.
+    \item Nel caso in cui, \textbf{ci sono valori negativi}, e vuoi trovare il cammino minimo da \textbf{un nodo ad uno o piu nodi}, allora uso Bellman-Ford
+    \item altrimenti, se devo trovare i cammini minimi da \textbf{tutti i nodi a tutti i nodi}, uso Floyd-Warshall
+\end{itemize}  
+
+
+\end{document}
