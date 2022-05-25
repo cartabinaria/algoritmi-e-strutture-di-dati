@@ -24,10 +24,11 @@ Identificativo | Espressione regolare accettante i nomi dei contenuti | Esempi
 `esercizi` | `[a-z0-9]+(-[a-z0-9]+)*\.[a-zA-Z]+` | `eserciziario-del-tutor.pdf`, `esercitazione-2022-05-10.tex`, `esercizio-1-12.c`
 `libri` | `[a-z0-9]+(-[a-z0-9]+)*\.[a-zA-Z]+` | `fioresi-morigi-introduzione-all-algebra-lineare.pdf`
 `lucidi` | `\d+-[a-z0-9]+(-[a-z0-9]+)*\.[a-zA-Z]+` | `00-introduzione.pptx`, `01-fondamenti-del-calcolo.pdf`
-`prove`| `(scritto\|totale\|(parziale\d?)\|orale\|progetto)-((testo\|soluzione)-)?\d{4}-\d{2}-\d{2}(-[a-z0-9]+)*\.[a-zA-Z]+` | `parziale2-testo-2022-05-24-B.pdf`, `totale-soluzione-2022-05-31-incompleto.pdf`, `orale-testo-2022-06-08.md`
+`prove`| `^(\.gitkeep)|((scritto|totale|esercitazione|parziale\d|orale(\d?)|progetto(\d?))-\d{4}(-\d{2}-\d{2})?(-[a-z0-9]+)?-(testo|soluzione)(-[a-z0-9]+)?\.[a-zA-Z0-9]+)$` | `parziale2-testo-2022-05-24-B.pdf`, `totale-soluzione-2022-05-31-incompleto.pdf`, `orale-testo-2022-06-08.md`
 `varie` | `[a-z0-9]+(-[a-z0-9]+)*\.[a-zA-Z]+` | `calcolatore-in-rete.link`, `utile-contenitore-docker.link`, `veloce-script.sh`
 
 Non sono ammessi:
+
 1. collegamenti pubblicitari o che puntano a risorse esterne non gratuite;
 1. programmi in formato binario;
 1. contenuti duplicati;
