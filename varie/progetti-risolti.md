@@ -8,3 +8,4 @@ trovi parametri per la ricerca di progetti pubblicati su GitHub.
 - [LittlePlayer](https://github.com/specialfish9/LittleMan)
 - [MontagnolaPlayer](https://github.com/giammirove/mnk-game)
 - [MoNKey](https://github.com/FoxySeta/monkey)
+- [Wall-E](https://github.com/kocierik/Wall-E)
