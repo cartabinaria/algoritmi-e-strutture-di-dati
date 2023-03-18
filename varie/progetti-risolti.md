@@ -9,3 +9,7 @@ trovi parametri per la ricerca di progetti pubblicati su GitHub.
 - [MontagnolaPlayer](https://github.com/giammirove/mnk-game)
 - [MoNKey](https://github.com/FoxySeta/monkey)
 - [Wall-E](https://github.com/kocierik/Wall-E)
+
+## a.a. 2021/22
+
+- [CadregaBot](https://github.com/frengor/CadregaBot)
