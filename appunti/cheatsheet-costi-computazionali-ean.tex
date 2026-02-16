@@ -1,0 +1,178 @@
+\documentclass{article}
+\usepackage[a4paper,left=0.5in,right=0.5in,top=0.7in,bottom=0.7in]{geometry}
+\usepackage{amsmath}
+\usepackage{multicol}
+\usepackage{hyperref}
+\usepackage{microtype,shapepar}
+\pagenumbering{gobble}
+
+% thx https://tex.stackexchange.com/a/282210 :-)
+\def\triangleupshape{%
+{0}%
+{0}b{0}\\%
+{8.66}t{-5}{10}\\%
+{17.32}t{-10}{20}\\%
+{17.32}e{0}%
+}
+\setlength{\columnsep}{0.3cm}
+\begin{document}
+
+\begin{center}
+\Large\textbf{  Algoritmi e Strutture Dati}\\
+\large          Costi Computazionali\\
+                A.A. 2024/2025
+\end{center}
+
+\begin{multicols}{2}
+
+% =============================================================================
+\centering
+\section{Dizionari}
+\centering
+\begin{tabular}{c|c|c|c}
+                    & \textbf{search}   & \textbf{insert}   & \textbf{delete}\\
+                        \hline
+    Array non ord.  & $\Theta(n)$       & $\Theta(n)$       & $\Theta(n)$\\
+    Array ord.      & $\Theta(\log n)$  & $\Theta(n)$       & $\Theta(n)$\\
+    Lista concat.   & $\Theta(n)$       & $\Theta(n)$       & $\Theta(n)$\\
+    BST             & $\Theta(n)$       & $\Theta(n)$       & $\Theta(n)$\\
+    Albero AVL      & $\Theta(\log n)$  & $\Theta(\log n)$  & $\Theta(\log n)$\\
+    \hline
+\end{tabular}
+
+{\small Costi caso pessimo e medio coincidono}
+
+\vspace{0.3cm}
+
+\section{Tabelle Hash}
+\small
+\begin{tabular}{c|cc|cc|cc}
+    & \multicolumn{2}{c|}{\textbf{search}}
+    & \multicolumn{2}{c|}{\textbf{insert}}
+    & \multicolumn{2}{c}{\textbf{delete}} \\
+    \cline{2-7}
+    & Med & Pess & Med & Pess & Med & Pess \\
+    \hline
+    Ind. aperto  & $O(1)$ & $\Theta(n)$
+                 & $O(1)$ & $\Theta(n)$
+                 & $O(1)$ & $\Theta(n)$ \\
+
+    Concat.      & $O(1)$ & $\Theta(m)$
+                 & $O(1)$ & $\Theta(m)$
+                 & $O(1)$ & $\Theta(m)$ \\
+    \hline
+\end{tabular}
+
+{\small $n$: num. elementi; $m$: dim. tabella}
+
+\vspace{0.3cm}
+
+\section{Heap}
+\begin{tabular}{c|c}
+    \textbf{Operazione} & \textbf{Costo}\\
+    \hline
+    findMax             & $O(1)$\\
+    fixHeap             & $O(\log n)$\\
+    heapify             & $O(n)$\\
+    deleteMax           & $O(\log n)$\\
+    heapsort            & $O(n\log n)$\\
+    \hline
+\end{tabular}
+
+{\small Costi equivalenti per un minHeap}
+
+\vspace{0.3cm}
+
+\subsection{d-heap}
+\begin{tabular}{c|c}
+    \textbf{Operazione} & \textbf{Costo}\\
+    \hline
+    findMin             & $O(1)$\\
+    insert              & $O(\log_dn)$\\
+    delete              & $O(d\log_dn)$\\
+    deleteMin           & $O(d\log_dn)$\\
+    increaseKey         & $O(d\log_dn)$\\
+    decreaseKey         & $O(\log_dn)$\\
+    \hline
+\end{tabular}
+
+\vspace{0.3cm}
+
+% =============================================================================
+\columnbreak
+
+\centering
+\section{UnionFind}
+\small
+\begin{tabular}{c|c|c|c}
+                        & \textbf{makeSet}  & \textbf{union}    & \textbf{find}\\
+                        \hline
+    QuickFind           & $O(1)$            & $O(n)$            & $O(1)$\\
+    QuickUnion          & $O(1)$            & $O(1)$            & $O(n)$\\
+    QF.peso             & $O(1)$            & $O(\log n)$       & $O(1)$\\
+    QU.rango            & $O(1)$            & $O(1)$            & $O(\log n)$\\
+    \hline
+\end{tabular}
+
+\vspace{0.3cm}
+
+\section{Grafi}
+\subsection{Visite di grafi}
+\begin{tabular}{c|c|c}
+                        & \textbf{BFS}  & \textbf{DFS} \\
+                        \hline
+    Liste adiac.        & $O(n+m)$      & $O(n+m)$ \\
+
+    Matrice adiac.      & $O(n^2)$      & $O(n^2)$ \\
+    \hline
+\end{tabular}
+
+{\small $n$: num. vertici; $m$: num. archi}
+
+\vspace{0.3cm}
+
+\subsection{Minimum Spanning Tree}
+\begin{tabular}{c|c}
+    \textbf{Algoritmo}  & \textbf{Costo}\\
+    \hline
+    Kruskal             & $O(m\log n)$\\
+    Prim                & $O(m\log n)$\\
+    \hline
+\end{tabular}
+
+\vspace{0.3cm}
+
+\subsection{Cammini minimi}
+\begin{tabular}{c|c}
+    \textbf{Algoritmo}  & \textbf{Costo}\\
+    \hline
+    Bellman-Ford        & $O(nm)$\\
+    Dijkstra            & $O(m\log n)$\\
+    Floyd-Warshall      & $O(n^3)$ spazio\\
+    Floyd-Warshall      & $O(n^2)$ tempo\\
+    \hline
+\end{tabular}
+
+\end{multicols}
+
+\section{Master Theorem}
+Data un'equazione di ricorrenza del tipo
+$$T(n) = \begin{cases}
+    d & n = 0 \\
+    aT(\displaystyle{\frac{n}{b})} + cn^\beta & n \geq 1
+\end{cases}$$
+\noindent
+dove $a,b \geq 1$, $c,d$ costanti, si può trovare il costo computazionale calcolando
+$$\alpha = \log_ba = \displaystyle\frac{\log a}{\log b}$$
+e applicando uno di questi tre casi del \textit{Master Theorem}:
+$$T(n) = \begin{cases}
+    \Theta(n^\alpha) & \alpha > \beta \\
+    \Theta(n^\alpha \log n) & \alpha = \beta \\
+    \Theta(n^\beta) & \alpha < \beta \\
+\end{cases}$$
+
+\pagebreak
+\shapepar{\triangleupshape}\textbf{B} uon giorno per qualsiasi correzione o consiglio questa è la mia mail :-)
+\href{mailto:eugenioamato.nadaia@studio.unibo.it}{eugenioamato.nadaia@studio.unibo.it}\par
+
+\end{document}
